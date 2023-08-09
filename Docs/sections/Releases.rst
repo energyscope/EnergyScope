@@ -1,5 +1,6 @@
 Releases
 ++++++++
+.. _sec_releases:
 
 How to cite
 ===========

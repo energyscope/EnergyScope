@@ -46,6 +46,7 @@ Contents
    sections/Overview
    sections/Releases
    sections/Getting started
+   sections/How to contribute
    sections/Model formulation
    sections/Input Data
    sections/Bibliography
