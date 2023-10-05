@@ -67,3 +67,5 @@ Repositories
 
 Documentation
 -------------
+
+If you find an error in the documentation.
