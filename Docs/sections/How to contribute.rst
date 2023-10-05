@@ -68,4 +68,4 @@ Repositories
 Documentation
 -------------
 
-If you find an error in the documentation.
+If you find an error in the documentation you can correct it.
