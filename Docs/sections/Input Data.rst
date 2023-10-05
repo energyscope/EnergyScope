@@ -381,7 +381,6 @@ To avoid ambiguity between renewable fuels and their fossil equivalent, it is sp
 .. caution::
    to be updated + explain where data comes from.
 
-The only difference being 
 Thus, we have gas and gas_re, or h2 and h2_re. Gas refers to what is usually called 'natural gas', while gas_re refers to methane from biogas, methanation of renewable hydrogen,...
 Since, a specific study for the Belgian case has been conducted by a consortium of industries, :cite:t:`H2coalition2020shipping`, which estimate new prices for the imports.
 :numref:`Table %s <tbl:prices_resources>` summarises all the input data for the resources.
@@ -392,89 +391,85 @@ Since, a specific study for the Belgian case has been conducted by a consortium 
    .. table:: Price, GHG emissions and availability of resources, in 2035. Abbreviations: Liquid Fuel Oil (LFO), Natural Gas (NG) and Synthetic Natural Gas (SNG).
       :name: tbl:prices_resources
 
-      +-------------+-------------+-------------+-------------+-------------+
-      | **Res\      | :math:`c_   | :math:`gwp_ | :math:`{CO}_| *avail*     |
-      | ources**    | {op}`       | {op}`       | {2direct}`  |             |
-      |             |             |             | [26]_       |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      |             | [€\ :sub:`2\| [kgCO\      | [kgCO:sub:\ | [GWh]       |
-      |             | 015`/MWh\   | :sub:`2-eq.`| `2`/MWh\    |             |
-      |             | :sub:`fuel`]| /MWh\       | :sub:`fuel`]|             |
-      |             |             | :sub:`fuel`]|             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Electricity | 84.3 [27]_  | 206.4 [28]_ | 0           | 27.5        |
-      | Import      |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Gasoline    | 82.4 [29]_  | 345 [28]_   | 250         | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Diesel      | 79.7 [30]_  | 315 [28]_   | 270         | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | LFO         | 60.1 [31]_  | 311.5 [28]_ | 260         | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Fossil      | 44.3 [32]_  | 267 [28]_   | 200         | infinity    |
-      | Gas         |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Woody       | 32.8        | 11.8 [28]_  | 390         | 23.4        |
-      | biomass     |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Wet-biomass | 5.8         | 11.8 [28]_  | 390         | 38.9        |
-      +-------------+-------------+-------------+-------------+-------------+
-      | non-RE      | 23.1        | 150  [28]_  | 260 [33]_   | 17.8        |
-      | waste       |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Coal        | 17.6        | 401         | 360         | 33.3 [37]_  |
-      |             |             | :cite:`\    |             |             |
-      |             |             | we\         |             |             |
-      |             |             | idema_ecoin\|             |             |
-      |             |             | vent_2013`  |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Uranium     | 3.9 [34]_   | 3.9         | 0           | infinity    |
-      |             |             | :cite:`\    |             |             |
-      |             |             | we\         |             |             |
-      |             |             | idema_ecoin\|             |             |
-      |             |             | vent_2013`  |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Bio-diesel  | 120.0       | 0  [36]_    | 270         | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | B\          | 111.3 [35]_ | 0  [36]_    | 250         | infinity    |
-      | io-gasoline |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Renew. gas  | 118.3       | 0 [36]_     | 200         | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Fossil  H2  | 87.5        | 364         | 0           | infinity    |
-      | [25]_       |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Renew. H2   | 119.4       | 0 [36]_     | 0           | infinity    |
-      |             |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Fossil      | 76          | 285         | 0           | infinity    |
-      | Ammonia     |             |             |             |             |
-      | [25]_       |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Renew.      | 81.8        | 0 [36]_     | 0           | infinity    |
-      | Ammonia     |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Fossil      | 82.0        | 350         | 246         | infinity    |
-      | Methanol    |             |             |             |             |
-      | [25]_       |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
-      | Renew.      | 111.3       | 0 [36]_     | 246         | infinity    |
-      | Methanol    |             |             |             |             |
-      +-------------+-------------+-------------+-------------+-------------+
+      +-------------+-------------+-------------+-------------+
+      | **Res\      | :math:`c_   | :math:`gwp_ | *avail*     |
+      | ources**    | {op}`       | {op}`       |             |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      |             | [€\ :sub:`2\| [kgCO\      | [GWh]       |
+      |             | 015`/MWh\   | :sub:`2-eq.`|             |
+      |             | :sub:`fuel`]| /MWh\       |             |
+      |             |             | :sub:`fuel`]|             |
+      +-------------+-------------+-------------+-------------+
+      | Electricity | 84.3 [27]_  | 206.4 [28]_ | 27.5        |
+      | Import      |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Gasoline    | 82.4 [29]_  | 345 [28]_   | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Diesel      | 79.7 [30]_  | 315 [28]_   | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | LFO         | 60.1 [31]_  | 311.5 [28]_ | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Fossil      | 44.3 [32]_  | 267 [28]_   | infinity    |
+      | Gas         |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Woody       | 32.8        | 11.8 [28]_  | 23.4        |
+      | biomass     |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Wet-biomass | 5.8         | 11.8 [28]_  | 38.9        |
+      +-------------+-------------+-------------+-------------+
+      | non-RE      | 23.1        | 150  [28]_  | 17.8        |
+      | waste       |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Coal        | 17.6        | 401         | 33.3 [37]_  |
+      |             |             | :cite:`\    |             |
+      |             |             | we\         |             |
+      |             |             | idema_ecoin\|             |
+      |             |             | vent_2013`  |             |
+      +-------------+-------------+-------------+-------------+
+      | Uranium     | 3.9 [34]_   | 3.9         | infinity    |
+      |             |             | :cite:`\    |             |
+      |             |             | we\         |             |
+      |             |             | idema_ecoin\|             |
+      |             |             | vent_2013`  |             |
+      +-------------+-------------+-------------+-------------+
+      | Bio-diesel  | 120.0       | 0  [36]_    | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | B\          | 111.3 [35]_ | 0  [36]_    | infinity    |
+      | io-gasoline |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Renew. gas  | 118.3       | 0 [36]_     | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Fossil  H2  | 87.5        | 364         | infinity    |
+      | [25]_       |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Renew. H2   | 119.4       | 0 [36]_     | infinity    |
+      |             |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Fossil      | 76          | 285         | infinity    |
+      | Ammonia     |             |             |             |
+      | [25]_       |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Renew.      | 81.8        | 0 [36]_     | infinity    |
+      | Ammonia     |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Fossil      | 82.0        | 350         | infinity    |
+      | Methanol    |             |             |             |
+      | [25]_       |             |             |             |
+      +-------------+-------------+-------------+-------------+
+      | Renew.      | 111.3       | 0 [36]_     | infinity    |
+      | Methanol    |             |             |             |
+      +-------------+-------------+-------------+-------------+
 
 
 .. [25]
    Own calculation for fossil hydrogen, ammonia and methanol. 
    Price and emissions are calculated based on fossil gas and based on conversion efficiencies.
-
-.. [26]
-   Direct emissions related to
-   combustion:cite:`Quaschning2015`.
 
 .. [27]
    Based on average market price in the year 2010 (50
@@ -524,10 +519,6 @@ Since, a specific study for the Belgian case has been conducted by a consortium 
    Based on the EUC estimated cost of resources in
    2030, see Table 5 from :cite:`simoes2013jrc`.
 
-.. [33]
-   Assuming that the energy content can be assimilated to plastics and
-   extended to LFO.
-
 .. [34]
    Average of the data points for 2035 in
    :cite:`f._ess_kosten_2011`, accounting for the efficiency
@@ -546,6 +537,48 @@ Since, a specific study for the Belgian case has been conducted by a consortium 
    Belgium is phasing out coal. Coal is still used in industrial processes.
    In 2015, 33.3 TWh of coal were used. Thus, the amount available should be lower than this value.
 
+
+Some resources are molecules that intrinsically emits carbon dioxide when burnt.
+Table :numref:`Table %s <tbl:CO2_emission_per_resources>` summarises the stoichiometric emissions for each of these molecules.
+Ones will note that no distinction is made between renewable or fossil based molecules.
+Indeed, a methane will emits 200 kg_CO2 per MWh due to its combustion, regardless its origin.
+These emissions are generated by the usage of molecules in technologies and could be valorised as a feedstock (e.g. captured).
+These value are used to calculate, for each technology, the CO2 emissions linked to its usage.
+
+
+.. container::
+
+   .. table:: Stoichiometric carbon dioxide emissions related to perfect combustion of resources (from :cite:`Quaschning2015`)
+      :name: tbl:CO2_emission_per_resources
+
+      +--------------+----------------+
+      | **Molecule** | CO\            |
+      |              | :math:`:sub:`2`|
+      +--------------+----------------+
+      |              | [kgCO2/MWh]    |
+      +--------------+----------------+
+      |  Gasoline    | 250            |
+      +--------------+----------------+
+      |  Diesel      | 270            |
+      +--------------+----------------+
+      |  LFO         | 260            |
+      +--------------+----------------+
+      |  Methane     | 200            |
+      +--------------+----------------+
+      | Methanol     | 246            |
+      +--------------+----------------+
+      | Coal         | 360            |
+      +--------------+----------------+
+      | Woody biomass| 390            |
+      +--------------+----------------+
+      | Wet biomass  | 390            |
+      +--------------+----------------+
+      | Waste        | 390 [26]_      |
+      +--------------+----------------+
+
+.. [26]
+   Assuming that the energy content can be assimilated to plastics and
+   extended to LFO.
 
 .. _sec:app1_end_uses:
 
@@ -1042,7 +1075,7 @@ entire demand.
 .. [81]
    Direct emissions due to combustion. Expressed
    in ton CO2 per MWh of electricity produced. Emissions computed based
-   on resource used and specific emissions given in :numref:`Table %s <tbl:prices_resources>`.
+   on resource used and specific emissions given in :numref:`Table %s <tbl:CO2_emission_per_resources>`.
 
 .. [82]
    Investment cost: 3431 €\ \ :sub:`2015`/kW\ \ :math:`_{\text{e}}`
@@ -1226,7 +1259,7 @@ respectively, i.e. they are not constraining the model.
 .. [115]
    Direct emissions due to combustion. Expressed
    in ton CO2 per MWh of heat produced. Emissions computed based on
-   resource used and specific emissions given in :numref:`Table %s <tbl:prices_resources>`.
+   resource used and specific emissions given in :numref:`Table %s <tbl:CO2_emission_per_resources>`.
 
 .. [116]
    Calculated as the average of investment costs for 50 kW\ \ :sub:`e`
@@ -1382,7 +1415,7 @@ respectively, i.e. they are not constraining the model.
 .. [154]
    Direct emissions due to combustion. Expressed
    in ton CO2 per MWh of heat produced. Emissions computed based on
-   resource used and specific emissions given in :numref:` Table %s <tbl:prices_resources>`.
+   resource used and specific emissions given in :numref:` Table %s <tbl:CO2_emission_per_resources>`.
 
 .. [155]
    Calculated with the equation: :math:`c_{inv}` [EUR\ \ :sub:`2011`] =
@@ -2480,7 +2513,7 @@ data for the hydrogen production technologies.
 .. [346]
    Direct emissions due to combustion. Expressed
    in ton CO2 per MWh of fuel produced. Emissions computed based on
-   resource used and specific emissions given in :numref:`Table %s <tbl:prices_resources>`.
+   resource used and specific emissions given in :numref:`Table %s <tbl:CO2_emission_per_resources>`.
 
 .. [347]
    It uses electricity and high temperature heat as feedstock, see :numref:`Table %s <tbl:hydrogen_techs_danish>`.
@@ -2576,7 +2609,7 @@ Finally, a last technology can produce methane from hydrogen and sequestrated CO
 .. [359]
    Direct emissions due to combustion. Expressed
    in ton CO2 per MWh of fuel produced. Emissions computed based on
-   resource used and produced and specific emissions given in :numref:`Table %s <tbl:prices_resources>`.
+   resource used and produced and specific emissions given in :numref:`Table %s <tbl:CO2_emission_per_resources>`.
 
 .. [360]
    Costs are adapted from :cite:`ro2007catalytic` and
