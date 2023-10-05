@@ -53,7 +53,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'default' #There is a mistake with sphinx_rtd_theme, cannot be installed even by adding it in requirements and extensions = []
 numfig = True # Add figure numbering
 numtab = True # Add table numbering
 
