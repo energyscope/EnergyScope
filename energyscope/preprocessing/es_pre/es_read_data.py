@@ -43,7 +43,7 @@ def read_json(file):
     return data
 
 
-def load_config(config_fn: str, project_path: Path):
+def load_config(config_fn: str):
     """
     Load the configuration into a dict.
 
@@ -52,14 +52,13 @@ def load_config(config_fn: str, project_path: Path):
     config_fn: str
     configuration file name.
 
-    project_path: pathlib.Path
-    path to project EnergyScope
-
     Returns
     -------
     A dict with the configuration.
     """
-
+    # define project path
+    project_path = Path(__file__).parents[3]
+    
     # Load parameters
     cfg = yaml.load(open(config_fn, 'r'), Loader=yaml.FullLoader)
     # Extend path
