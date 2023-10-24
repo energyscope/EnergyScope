@@ -212,7 +212,7 @@ def kmedoid_clustering(config, n_data, weights):
     else:
         config['AMPL_path'] = Path(config['AMPL_path'])
         print('AMPL path is', config['AMPL_path'])
-        config['ampl_options']['solver'] = config['AMPL_path'] / config['ampl_options']['solver']
+        options ['solver'] = config['AMPL_path'] / options ['solver']
         ampl_command = str(config['AMPL_path'] / 'ampl ') + run_file
 
     # print .run
