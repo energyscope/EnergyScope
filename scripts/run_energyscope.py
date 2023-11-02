@@ -13,11 +13,8 @@ if __name__ == '__main__':
     analysis_only = False
     compute_TDs = True
 
-    # define project path
-    project_path = Path(__file__).parents[1]
-
     # loading the config file into a python dictionnary
-    config = es.load_config(config_fn='config_ref.yaml', project_path=project_path)
+    config = es.load_config(config_fn='config_ref.yaml')
     config['Working_directory'] = os.getcwd() # keeping current working directory into config
     
    # Reading the data of the csv
