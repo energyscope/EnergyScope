@@ -92,7 +92,6 @@ Everyone can contribute to the development by:
 Pull Requests
 -------------
 
-<<<<<<< HEAD
 If you're comfortable with GitHub's pull request system and want to contribute code changes, follow these steps:
 
 1. `Forking <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks#about-creating-forks>`_ the `repository <https://github.com/energyscope/EnergyScope>`_
@@ -122,6 +121,3 @@ To report an issue:
 Make sure to check existing issues to avoid duplicates and provide as much detail as possible to help the community understand and address your concern effectively.
 
 Remember, your contributions, whether through code, documentation, or issue reporting, play a vital role in the development and improvement of EnergyScope.
-=======
-If you find an error in the documentation you can correct it by creating a pull request.
->>>>>>> 76dceb9944a9732c6a7c8f5f2031dc9099c462d4
