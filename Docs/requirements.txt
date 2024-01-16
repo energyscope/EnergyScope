@@ -1,4 +1,4 @@
 Sphinx>=2.1
 sphinxcontrib-bibtex
-nbsphinx
 sphinx_design
+sphinx_rtd_theme
