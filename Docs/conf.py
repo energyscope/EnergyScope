@@ -31,7 +31,8 @@ release = '2.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [ 'sphinxcontrib.bibtex',
-'sphinx_design'
+               'nbsphinx',
+               'sphinx_design'
 ]
 # Bibliography:
 bibtex_bibfiles = ['refs.bib']
@@ -52,7 +53,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme' #There is a mistake with sphinx_rtd_theme, cannot be installed even by adding it in requirements and extensions = []
+html_theme = 'default' #There is a mistake with sphinx_rtd_theme, cannot be installed even by adding it in requirements and extensions = []
 numfig = True # Add figure numbering
 numtab = True # Add table numbering
 
