@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<head>
+    <!-- original file:
+            license: mit
+            author: d3noob on GitHub https://gist.github.com/d3noob/c9b90689c1438f57d649
+         adapted to EnergyScope by Stefano Moret & Elfie Marie Méchaussie:
+         other contributors: Noé Cornet -->
+    <meta charset="utf-8">
+    <title>SANKEY</title>
+    
+    <style>
+    <!-- ********************* CSS Styling **************************-->
+    html,body{min-height:100%;}
+
+    label{font-size: 11pt;}
+    
+    #chart { height: 500px;} 
+    
+    /* Change here the font style for the chart*/
+    body {
+        font-family:Utopia, serif;
+        font-size:62.5%;
+    }    
+    
+    /*------------------------------------------------------------*/
+    /*------------ Customization of Rectangle Nodes --------------*/
+    /*------------------------------------------------------------*/
+    .node rect {                                                                                                                      
+        cursor			: move; 		/* Cursor changes its form */
+        fill-opacity	: .6; 			/* Opacity of rectangle node color. Recall colors are defined in json-like graph */
+        shape-rendering	: crispEdges; 
+    }
+    .node text {
+        pointer-events	: none;
+        text-shadow		: none !important;
+    }
+    /*------------------------------------------------------------*/
+    /*----Changing style of node while hovering over it ----------*/
+    /*------------------------------------------------------------*/
+    /* define if when hovering the color is lighter or stronger */
+    .node rect:hover {
+        fill-opacity	: 0.8; 
+    }
+    /*------------------------------------------------------------*/
+    /*------------------ Customization of Links ------------------*/
+    /*------------------------------------------------------------*/
+    .link { 
+        fill			: none;
+        stroke			: #336666;
+        stroke-opacity	: .8;
+    }
+    /*------------------------------------------------------------*/
+    /*------ Changing style of link while hovering over it -------*/
+    /*------------------------------------------------------------*/
+    /* define if when hovering the color is lighter or stronger */
+    .link:hover {
+        stroke-opacity	: 0.8 !important;
+    }
+    /*------------------------------------------------------------*/
+    </style>
+</head>
+
+<body>
+    <label for="file-input">Select the .csv file: </label>
+    <input type="file" id="file-input"/>
+    </br>
+    <input type="checkbox" name="Remove previous sankey" id="rmv-sankey">
+    <label for="rmv-sankey">Remove previous sankey diagram</label>
+    </br>
+    <button id="read-button">Show Sankey</button>
+    <!-- Removed title
+        <h1 style = "font-family:Sans-serif;font-size:200%"> Sankey diagram example</h1>
+    -->
+    <div id = "chart"></div>
+    <!-- ********************* Javascript Functionality **************************-->
+    <script src = "d3.min.js"></script>
+    <script src = "sankey.js"></script>
+    <script>
+
+        // the start the script begins by defining a range of variables that will be used
+
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+    width = 1220 - margin.left - margin.right,
+    height = 760 - margin.top - margin.bottom;
+
+document.querySelector("#read-button").addEventListener('click', function() {
+    // Empty the chart div if user asked
+    if (document.getElementById("rmv-sankey").checked) {
+        document.getElementById("chart").innerHTML = "";
+    }
+    
+    // load the csv file into memory
+    let file = document.querySelector("#file-input").files[0];
+    let reader = new FileReader();
+    reader.addEventListener('load', function(e) {
+        // store the content of the file in a string
+        let text = e.target.result;
+
+        var formatNumber = d3.format(",.2f"),
+            format = function(d) { return formatNumber(d); }, 
+            //format is a function that returns a given number formatted with formatNumber 
+            //as well as a space and our units of choice. 
+            //This is used to display the values for the links and nodes later in the script.
+            color = d3.scale.category20();
+
+        // append the svg canvas to the page
+        var svg = d3.select("#chart") // select the chart element in the document
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g") // container element for grouping together related graphics elements.
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // Set the Sankey diagram properties
+        var sankey 	= d3.sankey()
+            .nodeWidth(50) 			// sets the pixel width of all nodes (heights are variable, widths are fixed)
+            .nodePadding(10)  		// sets the minimum vertical pixel spacing between nodes
+            .size([width, height]); // sets the width and height of the diagram in pixels
+
+        var path 	= sankey.link();
+
+        // read the data from the file as csv
+        data = d3.csv.parse(text, function(d) {
+            return {
+                source: d.source,
+                target: d.target,
+                realValue:  d.realValue,
+                layerId:    d.layerId,
+                layerColor: d.layerColor,
+                layerUnit:  d.layerUnit
+            };
+        });
+        // declare `graph` to consist of two empty arrays called `nodes` and `links`.
+        graph = {"nodes" : [], "links" : []};
+        // Take the `data` loaded with the csv file and for each row loads variables 
+        // for the `source` and `target` into the `nodes` array then for each row loads 
+        // variables for the `source` `target` and `value` into the `links` array.
+
+        data.forEach(function (d) {
+            if(d.realValue > 0) {   // takes only non-null values
+                graph.nodes.push({	"name": 		d.source });
+                graph.nodes.push({	"name": 		d.target });
+                graph.links.push({	"source": 		d.source,
+                                    "target": 		d.target,
+                                    "realValue": 	d.realValue,
+                                    "layerId": 		d.layerId,
+                                    "layerColor": 	d.layerColor,
+                                    "layerUnit": 	d.layerUnit});
+            }
+        });
+
+        // routine which retursn only the distinct / unique nodes
+        graph.nodes = d3.keys(d3.nest()
+            .key(function (d) { return d.name; })
+            .map(graph.nodes));
+
+        // now loop through each nodes to make nodes an array of objects
+        // rather than an array of strings
+        graph.nodes.forEach(function (d, i) {
+            graph.nodes[i] = { "name": d };
+        });
+
+
+        // for each link define "value" as equal to "realValue" this is needed in case of scaling the links thickness
+        graph.links.forEach(function(link,index) {link.value = link.realValue;})
+
+        // initializes links source and target. A lookupf node name must be performed for each links node
+        graph.links.forEach(function (l,i) {
+            // bounds the links source with the node object having the same name
+            l.source = graph.nodes.filter(function(n) { //filter nodes with the same name
+                return n.name === l.source;
+            })[0]; // get the first filtered element since the name is sensed to be unique
+            // bounds the links target with the node object having the same name
+            l.target =  graph.nodes.filter(function(n) { // filter nodes with the same name
+                return n.name === l.target;
+            })[0]; // get the first filtered element since the name is sensed to be unique
+        });
+
+        sankey
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .layout(32);
+
+        // ----------------------------------------------------------------------------
+        // Add the links
+        // ----------------------------------------------------------------------------
+
+        var link = svg.append("g").selectAll(".link")
+            .data(graph.links)
+            .enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("id",function(d,i) { return "linkLabel" + i; })
+            .attr("d", path)
+            .style("stroke",function(d) {return d.layerColor; }) //setting color of link based on its layer color
+            .style("stroke-width", function (d) {
+                return Math.max(1, d.dy);
+            })
+            .sort(function (a, b) {
+                return b.dy - a.dy;
+            });
+
+        // Adding values in links. Taken from: 
+        // http://stackoverflow.com/questions/33492736/show-text-on-google-chart-sankey-diagram
+
+        var labelText = svg.selectAll(".labelText")
+            .data(graph.links)
+            .enter()
+            .append("text")
+            .attr("class","labelText")
+            .attr("dx",40)
+            .attr("dy",2)
+            .append("textPath")
+            .attr("xlink:href",function(d,i) { return "#linkLabel" + i;})
+            .text(function(d,i) {                                 
+                return format(d.value);});
+
+        // ----------------------------------------------------------------------------
+        // add the link titles showing the real flow Value + unit + layer
+        // ----------------------------------------------------------------------------
+        link.append("title")
+            .text(function(d) {
+                return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+
+        // ----------------------------------------------------------------------------
+        // add in the nodes
+        // ----------------------------------------------------------------------------
+        var node = svg.append("g").selectAll(".node")
+            .data(graph.nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { 
+                return "translate(" + d.x + "," + d.y + ")"; })
+            .call(d3.behavior.drag()
+                .origin(function(d) { return d; })
+                .on("dragstart", function() { this.parentNode.appendChild(this); })
+                .on("drag", dragmove)); // the dragmove function is laid out at the end of the code
+
+        // ----------------------------------------------------------------------------
+        // add the rectangles for the nodes
+        // ----------------------------------------------------------------------------
+        node.append("rect")
+            .attr("height", function(d) { return d.dy; })
+            .attr("width", sankey.nodeWidth())
+            .style("fill", function(d) { 
+                return "#D3D3D3" })   // define node color (same for all)
+        //.style("stroke", function(d) { return d3.rgb(d.color).darker(2); })    // rectangle border color
+            .append("title")
+            .text(function(d) { return d.name+ "\n" + format(d.value); });
+
+
+
+        // ----------------------------------------------------------------------------
+        // add in the title for the nodes
+        // ----------------------------------------------------------------------------
+        node.append("text")
+        // Case 1: normally text is aligned left at the start of the node
+            .attr("x", 0)
+        //.attr("y", function(d) { return 10; })  // put node name 10px below the top of the node
+            .attr("y", function(d) { return d.dy / 2; }) // put node name in the middle of its height
+            .attr("dy", ".35em") // What is it needed for?
+            .attr("text-anchor", "left")
+            .attr("transform", null)
+            .style("font-size","0.9rem")
+            .text(function(d) { return d.name; })  
+        // Case 2: if in the center of the diagram, align center
+            .filter(function(d) { return d.x > width * .05})
+            .attr("x", 0 + sankey.nodeWidth() / 2)
+        //.text(function(d) { return d.name; }) // prints the name of the node
+            .attr("text-anchor", "middle")
+        // Case 3: if at the right end of the diagram, anchor and align right
+            .filter(function(d) { return d.x > width * .95; })
+            .attr("x", 0 + sankey.nodeWidth())
+        //.text(function(d) { return d.name; }) // prints the name of the node
+            .attr("text-anchor", "end"); 
+
+        // if you want the total value displayed for each node --> uncomment    
+        /*node.append("text")
+                .attr("x", 0)
+                .attr("y", function(d) { return (d.dy / 2)+20; }) // put node name in the middle of its height
+                .attr("dy", ".35em")
+                .attr("text-anchor", "start")
+                .attr("transform", null)
+                .style("font-size","0.9rem")
+                .text(function(d) { return format(d.value); }) */
+
+
+        // ----------------------------------------------------------------------------
+        // the function for moving the nodes vertically and horizontally
+        // ----------------------------------------------------------------------------
+        function dragmove(d) {
+            d3.select(this).attr("transform", 
+                "translate(" + ( d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))) + "," 						 
+                + ( d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+        };
+    });
+    reader.readAsText(file);
+});
+    </script>
+</body>
+</html>

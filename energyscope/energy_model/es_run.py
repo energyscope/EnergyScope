@@ -14,7 +14,7 @@ import shutil
 from subprocess import CalledProcessError, run
 from pathlib import Path
 
-from energyscope import print_run
+#from energyscope import print_run
 
 def run_es(config):
     """

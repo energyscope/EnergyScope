@@ -19,19 +19,20 @@ if __name__ == '__main__':
     # loading the config file into a python dictionnary
     config = es.load_config(config_fn='config_ref.yaml', project_path=project_path)
     config['Working_directory'] = os.getcwd() # keeping current working directory into config
-    
+    print('test 1')
    # Reading the data of the csv
     es.import_data(config)
-
+    print(config, 'magicien')
+    print('test 2')
     if compute_TDs:
         es.build_td_of_days(config)
-   
+    print('test 3')
     if not analysis_only:
         # Printing the .dat files for the optimisation problem       
         es.print_data(config)
 
         # Running EnergyScope
-        es.run_es(config)
+        es.es_run(config)
 
     # Example to print the sankey from this script
     if config['print_sankey']:

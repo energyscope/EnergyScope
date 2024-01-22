@@ -1,0 +1,58 @@
+#				incremental	total
+#phase		seconds		memory		memory
+#execute	0.140625	6240504		6240504
+### td_main.run:20(916)   option ...
+#execute	0		0		6240504
+### td_main.run:21(937)   option ...
+#execute	0		0		6240504
+### td_main.run:24(967)   solve ...
+#compile	0		1560		6242064
+##genmod times:
+##seq      seconds    cum. sec.    mem. inc.  name
+## 89            0            0            0  derstage
+## 93            0            0            0  sstatus
+## 107            0            0            0  DIMENSIONS
+## 108            0            0            0  DAYS
+## 109            0            0            0  Nbr_TD
+## 110            0            0            0  Ndata
+## 111      2.48438      2.48438     13175008  Distance
+## 112            0      2.48438            0  Selected_TD
+## 114     0.015625          2.5      4202528  Cluster_matrix
+## 116     0.046875      2.54688      3233312  allocate_1TD_per_day
+## 118      0.03125      2.57812     14759016  other_TD_null
+## 120            0      2.57812        38400  limit_number_of_TD
+## 122      0.03125      2.60938      3187200  Euclidean_distance
+#genmod		2.60938		38595464	44837528
+#merge		0		2097160		46934688
+#collect	0.046875	37953104	84887792
+
+"option presolve 10;" used, but "option presolve 2;" would suffice.
+133590 variables, all binary
+133591 constraints, all linear; 400040 nonzeros
+	366 equality constraints
+	133225 inequality constraints
+1 linear objective; 132860 nonzeros.
+
+presolve results:
+	variables omitted:	0
+	constraints omitted:	0
+	ranges relaxed:		133225
+	bounds improved:	0
+	nba cycles:		1
+	bound row scans:	133591
+	row-scan updates:	0
+#presolve	0.234375	30571568	115459360
+#output		0.34375		4194312		119653672
+#Total		3.375
+cbc 2.10.7: cbc 2.10.7: optimal solution; objective 5.709479493e-06
+3533 simplex iterations
+3533 barrier iterations
+#execute	0.078125	2097160		121750832
+### td_main.run:26(975)   option ...
+### td_main.run:27(1003)   option ...
+solve_result = solved
+
+solve_result_num = 0
+
+_solve_elapsed_time = 751.875
+

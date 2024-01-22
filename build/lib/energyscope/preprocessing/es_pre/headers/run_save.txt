@@ -1,0 +1,16 @@
+
+if solve_result = "limit" then { # To avoid post treatment error
+    print "TIME OUT";
+    exit 1;
+}
+else {
+    if solve_result = "infeasible" then {
+        print "INFEASIBLE";
+        exit 1;
+    }
+    else {
+        if solve_result = "failure" then {
+            print "FAILURE";
+            exit 1;
+        }
+        else {

@@ -1,0 +1,4 @@
+### Printing output
+for {i in DAYS}{
+ printf "%d\t\n",(sum{j in DAYS} j*Cluster_matrix[j,i]) > "td_of_days.out";
+}

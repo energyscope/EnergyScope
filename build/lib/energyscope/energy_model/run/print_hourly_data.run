@@ -1,0 +1,75 @@
+## Save hourly data (over the entire year for storage tech and over the TDs for each layer)
+
+# STORAGE distribution CURVES
+print "--------------SAVING STORAGE -----------";
+printf "Time\t" > (PathName & "/hourly_data/energy_stored.txt");
+for {i in STORAGE_TECH }{
+    printf "%s\t", i >> (PathName & "/hourly_data/energy_stored.txt");
+}
+for {i in STORAGE_TECH }{
+    printf "%s_in\t" , i >> (PathName & "/hourly_data/energy_stored.txt");
+    printf "%s_out\t", i >> (PathName & "/hourly_data/energy_stored.txt");
+}
+for {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}{
+    printf "\n %d\t",t  >> (PathName & "/hourly_data/energy_stored.txt");
+    for {i in STORAGE_TECH}{
+        if F[i]=0 then
+            printf "\t" >> (PathName & "/hourly_data/energy_stored.txt");
+        else
+            printf "%f\t", Storage_level[i, t] >> (PathName & "/hourly_data/energy_stored.txt");
+    }
+    for {i in STORAGE_TECH}{
+        if F[i]=0 then
+            printf "\t\t" >> (PathName & "/hourly_data/energy_stored.txt");
+        else {
+            printf "%f\t", (sum {l in LAYERS: storage_eff_in [i,l] > 0}-(Storage_in [i, l, h, td] * storage_eff_in [i, l]))	>> (PathName & "/hourly_data/energy_stored.txt");
+            printf "%f\t", (sum {l in LAYERS: storage_eff_in [i,l] > 0}	(Storage_out [i, l, h, td] / storage_eff_out [i, l]))	>> (PathName & "/hourly_data/energy_stored.txt");
+        }
+    }
+}
+
+# LAYERS FLUXES
+print "--------------SAVING LAYERS -----------";
+    for {l in LAYERS}{
+    printf "Td \t Time\t" > (PathName & "/hourly_data/layer_" & l &".txt");
+    for {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH }{
+        printf "%s\t",i >> (PathName & "/hourly_data/layer_" & l &".txt");
+    }
+    for {j in STORAGE_TECH }{
+        printf "%s_Pin\t",j >> (PathName & "/hourly_data/layer_" & l &".txt");
+        printf "%s_Pout\t",j >> (PathName & "/hourly_data/layer_" & l &".txt");
+    }
+    printf "END_USE\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+
+    for {td in TYPICAL_DAYS, h in HOURS}{
+        printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/layer_" & l &".txt");
+        for {i in RESOURCES}{
+            if layers_in_out[i, l] = 0 then # Incompatible
+                printf "\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+            else
+                printf "%f\t",(layers_in_out[i, l] * F_t [i, h, td]) >> (PathName & "/hourly_data/layer_" & l &".txt");
+        }
+        for {i in TECHNOLOGIES diff STORAGE_TECH}{
+            if layers_in_out[i, l] = 0 then # Incompatible
+                printf "\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+            else{
+                if F[i] = 0 then #No technology installed
+                    printf "\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+                else {
+                    printf "%f\t",(layers_in_out[i, l] * F_t [i, h, td]) >> (PathName & "/hourly_data/layer_" & l &".txt");
+            }}
+        }
+        for {j in STORAGE_TECH}{
+            if storage_eff_in[j, l] = 0 then # Incompatible
+                printf "\t\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+            else {
+                if F[j] = 0 then #No storage
+                    printf "\t\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+                else {
+                    printf "%f\t",(-Storage_in [j, l, h, td]) >> (PathName & "/hourly_data/layer_" & l &".txt");
+                    printf "%f\t", (Storage_out [j, l, h, td])>> (PathName & "/hourly_data/layer_" & l &".txt");
+            }}
+        }
+        printf "%f\t", -End_uses [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
+    }
+}

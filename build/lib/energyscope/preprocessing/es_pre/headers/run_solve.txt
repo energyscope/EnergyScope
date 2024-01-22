@@ -1,0 +1,12 @@
+
+# Solve
+solve;
+
+option times 0; # show time
+option gentimes 0; # show time
+
+display solve_result;
+display solve_result_num;
+display _solve_elapsed_time;
+
+

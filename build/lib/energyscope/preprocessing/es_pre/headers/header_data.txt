@@ -1,0 +1,31 @@
+ #  -------------------------------------------------------------------------------------------------------------------------	 
+ #	EnergyScope  TD  is  an  open-source  energy  model  suitable  for  country  scale  analysis.  It  is  a  simplified  representation  of  an  urban  or  national  energy  system  accounting  for  the  energy  flows 
+ #	within  its  boundaries.  Based  on  a  hourly  resolution,  it  optimises  the  design  and  operation  of  the  energy  system  while  minimizing  the  cost  of  the  system. 
+ #	 
+ #	Copyright  (C)  <2018-2019>  <Ecole  Polytechnique  Fédérale  de  Lausanne  (EPFL),  Switzerland  and  Université  catholique  de  Louvain  (UCLouvain),  Belgium> 
+ #	 
+ #	 
+ #	Licensed  under  the  Apache  License,  Version  2.0  (the  "License"); 
+ #	you  may  not  use  this  file  except  in  compliance  with  the  License. 
+ #	You  may  obtain  a  copy  of  the  License  at 
+ #	 
+ #	http://www.apache.org/licenses/LICENSE-2.0 
+ #	 
+ #	Unless  required  by  applicable  law  or  agreed  to  in  writing,  software 
+ #	distributed  under  the  License  is  distributed  on  an  "AS  IS"  BASIS, 
+ #	WITHOUT  WARRANTIES  OR  CONDITIONS  OF  ANY  KIND,  either  express  or  implied. 
+ #	See  the  License  for  the  specific  language  governing  permissions  and 
+ #	limitations  under  the  License. 
+ #	 
+ #	Description  and  complete  License:  see  LICENSE  file. 
+ #  -------------------------------------------------------------------------------------------------------------------------	 
+ 	 
+ #  UNIT  MEASURES: 
+ #  Unless  otherwise  specified  units  are: 
+ #  Energy  [GWh],  Power  [GW],  Cost  [Meuro],  Time  [h],  Passenger  transport  [Mpkm],  Freight  Transport  [Mtkm] 
+ 	 
+ #  References  based  on  Supplementary  material 
+ #  --------------------------	 
+ #  SETS  not  depending  on  TD	 
+ #  --------------------------
+

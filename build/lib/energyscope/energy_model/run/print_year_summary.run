@@ -1,0 +1,108 @@
+## Saving year summary to output file
+
+print "TotalCost", TotalCost;
+print "GWP_op", sum {i in RESOURCES} GWP_op [i];
+
+## Print cost breakdown to txt file.
+print "--------------SAVING COSTS -----------";
+printf "%s\t%s\t%s\t%s\n", "Name", "C_inv", "C_maint", "C_op" > (PathName & "/cost_breakdown.txt");
+for {i in TECHNOLOGIES union RESOURCES}{
+    printf "%s\t%.6f\t%.6f\t%.6f\n", i, if i in TECHNOLOGIES then (tau[i] * C_inv[i]) else 0, if i in TECHNOLOGIES then C_maint [i] else 0, if i in RESOURCES then C_op [i] else 0 >> (PathName & "/cost_breakdown.txt");
+}
+
+
+## Print resources breakdown to txt file.
+print "--------------SAVING RESOURCES -----------";
+printf "%s\t%s\t%s\n", "Name", "Used", "Potential" > (PathName & "/resources_breakdown.txt");
+for {i in RESOURCES}{
+    printf "%s\t%.6f\t%.6f\n", i, sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [i, h, td] * t_op [h, td]) , avail [i] >> (PathName & "/resources_breakdown.txt");
+}
+
+
+## Print GWP breakdown
+print "--------------SAVING GWP -----------";
+printf "%s\t%s\t%s\n", "Name", "GWP_constr", "GWP_op" > (PathName & "/gwp_breakdown.txt");
+for {i in TECHNOLOGIES union RESOURCES}{
+    printf "%s\t%.6f\t%.6f\n", i, if i in TECHNOLOGIES then GWP_constr [i] / lifetime [i] else 0, if i in RESOURCES then GWP_op [i] else 0 >> (PathName & "/gwp_breakdown.txt");
+}
+
+
+## Print losses to txt file
+print "--------------SAVING Losses -----------";
+printf "%s\t%s\n", "End use", "Losses" > (PathName & "/losses.txt");
+for {i in END_USES_TYPES}{
+        printf "%s\t%.3f\n",i,  sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t] }(Network_losses [i,h,td] * t_op [h,td])  >> (PathName & "/losses.txt");
+}
+
+## Print ASSETS to txt file
+print "--------------SAVING ASSETS -----------";
+printf "TECHNOLOGIES\t c_inv\t c_maint\t lifetime\t  f_min\t f\t f_max\t fmin_perc\t" > (PathName & "/assets.txt");
+printf "f_perc\t fmax_perc\t c_p\t c_p_max\t tau\t gwp_constr" > (PathName & "/assets.txt"); # Must be split in 2 parts, otherwise too long for GLPK
+printf "\n UNITS\t[M€/GW]\t [M€/GW/y]\t [y]\t [GW or GWh]\t" >> (PathName & "/assets.txt");
+printf " [GW or GWh]\t [GW or GWh]\t [0-1]\t [0-1]\t [0-1]\t [0-1]\t [0-1]\t [-]\t [ktCO2-eq./GW or GWh] " >> (PathName & "/assets.txt");
+for {i in END_USES_TYPES, tech in TECHNOLOGIES_OF_END_USES_TYPE[i]}{
+    printf "\n%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f",tech,
+C_inv[tech],C_maint[tech],lifetime[tech],f_min[tech],F[tech],f_max[tech],
+fmin_perc[tech],
+sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [tech,h,td] ) / max(sum {j2 in
+TECHNOLOGIES_OF_END_USES_TYPE[i], t2 in PERIODS, h2 in HOUR_OF_PERIOD[t2], td2 in TYPICAL_DAY_OF_PERIOD[t2]} (F_t [j2, h2,
+td2] ) , 0.00001) ,fmax_perc[tech],
+sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [tech,h,td] * t_op[h,td]) / 8760 / max(F[tech],0.0001),
+c_p[tech],tau[tech],GWP_constr[tech] >> (PathName & "/assets.txt");
+}
+for {tech in STORAGE_TECH}{
+    printf "\n%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t",tech,
+C_inv[tech],C_maint[tech],lifetime[tech],f_min[tech],F[tech],f_max[tech],
+fmin_perc[tech],
+-1,
+fmax_perc[tech],
+sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t],l in LAYERS: storage_eff_out [tech,l] > 0} -min(0,Storage_out [tech, l, h, td] / storage_eff_out [tech, l] - Storage_in [tech, l, h, td] * storage_eff_in [tech, l]) / 8760 / max(F[tech],0.0001)
+,c_p[tech],tau[tech],GWP_constr[tech] >> (PathName & "/assets.txt");
+}
+for {tech in INFRASTRUCTURE}{
+    printf "\n%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t",tech,
+C_inv[tech],C_maint[tech],lifetime[tech],f_min[tech],F[tech],f_max[tech],
+fmin_perc[tech],
+-1,
+fmax_perc[tech],
+sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [tech,h,td] * t_op[h,td]) / 8760 / max(F[tech],0.0001)
+,c_p[tech],tau[tech],GWP_constr[tech] >> (PathName & "/assets.txt");
+}
+
+## Energy yearly balance
+printf "Tech\t" > (PathName & "/year_balance.txt");
+for {l in LAYERS}{
+    printf "%s\t",l >> (PathName & "/year_balance.txt");
+}
+for {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH}{
+    printf "\n %s \t", i >> (PathName & "/year_balance.txt");
+    for {l in LAYERS}{
+        printf " %f\t", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+layers_in_out[i, l] * F_t [i, h, td] >> (PathName & "/year_balance.txt");
+    }
+}
+for {j in STORAGE_TECH}{
+    printf "\n %s \t", j >> (PathName & "/year_balance.txt");
+    for {l in LAYERS}{
+        printf " %f\t", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+(Storage_out [j, l, h, td] - Storage_in [j, l, h, td]) >> (PathName & "/year_balance.txt");
+    }
+}
+printf "\n END_USES_DEMAND \t" >> (PathName & "/year_balance.txt");
+for {l in LAYERS}{
+    printf " %f\t", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+        End_uses [l, h, td] >> (PathName & "/year_balance.txt");
+}
+
+## Yearly flux into storages
+printf "Storage tech\tYear flux [TWh]" > (PathName & "/sto_year.txt");
+for {l in LAYERS}{
+    printf "%s\t",l >> (PathName & "/sto_year.txt");
+}
+for {j in STORAGE_TECH}{
+    printf "\n %s", j >> (PathName & "/sto_year.txt");
+    for {l in LAYERS}{
+        printf "\t%f", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+        max(-(Storage_out [j, l, h, td] - Storage_in [j, l, h, td]),0.001) >> (PathName & "/sto_year.txt");
+    }
+}

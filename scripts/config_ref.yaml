@@ -23,7 +23,7 @@ printing_td: True
 # Run options for optimization problem
 # path to AMPL licence directory (to adapt by the user), set to None if AMPL is in your PATH variables
 # /!\ Don't use "\" but rather "\\" or "/"
-'AMPL_path': 
+'AMPL_path': #'C:/ampl'
 # options for ampl
 'ampl_options' : {'show_stats': 3,
                   'log_file': 'output/log.txt',
@@ -32,8 +32,8 @@ printing_td: True
                   'presolve_fixeps': 1e-7,
                   'show_boundtol': 0,
                   '_log_input_only': False,
-                  'solver': 'gurobi',
-                  'gurobi_options' : 'predual=-1 method=2 crossover=0 prepasses=3 barconvtol=1e-6 presolve=-1'
+                  'solver': 'cbc',
+                  #'gurobi_options' : 'predual=-1 method=2 crossover=0 prepasses=3 barconvtol=1e-6 presolve=-1 licfile=C:/Users/LM272782/gurobi.lic'
 }
 
 # Printing more detailed outputs
