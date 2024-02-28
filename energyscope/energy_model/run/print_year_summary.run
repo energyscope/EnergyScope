@@ -2,6 +2,7 @@
 
 print "TotalCost", TotalCost;
 print "GWP_op", sum {i in RESOURCES} GWP_op [i];
+print "GWP_op", sum {h in HOURS, td in TYPICAL_DAYS} CO2_ATM[h, td];
 
 ## Print cost breakdown to txt file.
 print "--------------SAVING COSTS -----------";
@@ -91,18 +92,35 @@ for {j in STORAGE_TECH}{
 printf "\n END_USES_DEMAND \t" >> (PathName & "/year_balance.txt");
 for {l in LAYERS}{
     printf " %f\t", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
-        End_uses [l, h, td] >> (PathName & "/year_balance.txt");
+        -End_uses [l, h, td] >> (PathName & "/year_balance.txt");
 }
 
 ## Yearly flux into storages
-printf "Storage tech\tYear flux [TWh]" > (PathName & "/sto_year.txt");
-for {l in LAYERS}{
-    printf "%s\t",l >> (PathName & "/sto_year.txt");
+printf "Storage tech \t" > (PathName & "/sto_year.txt");
+for {l in LAYERS} {
+    printf "%s_in\t%s_out\t", l, l >> (PathName & "/sto_year.txt");
 }
 for {j in STORAGE_TECH}{
     printf "\n %s", j >> (PathName & "/sto_year.txt");
     for {l in LAYERS}{
         printf "\t%f", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
-        max(-(Storage_out [j, l, h, td] - Storage_in [j, l, h, td]),0.001) >> (PathName & "/sto_year.txt");
+        Storage_in [j, l, h, td] >> (PathName & "/sto_year.txt");
+        printf "\t%f", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+        Storage_out [j, l, h, td] >> (PathName & "/sto_year.txt");
     }
 }
+
+#print "CO2_ATM", sum {h in HOURS, td in TYPICAL_DAYS} CO2_ATMOSPHERE[h, td];
+
+print "--------------SAVING CO2 -----------";
+#for { i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH}{print "i ", i;
+#    print " CO2 decentralised", sum {t in PERIODS,  h in HOURS, td in TYPICAL_DAYS } (layers_in_out[i, "CO2_ATMOSPHERE"] * F_t [i, h, td]);
+#    print " CO2 decentralised", sum { h in HOURS, td in TYPICAL_DAYS } (layers_in_out[i, "CO2_ATMOSPHERE"] * F_t [i, h, td]);}
+print "GWP_constr", sum{j in TECHNOLOGIES} GWP_constr[j]/lifetime[j];
+print " CO2 centralised", sum {t in PERIODS,  h in HOURS, td in TYPICAL_DAYS } (layers_in_out["CO2_ATMOSPHERE", "CO2_CENTRALISED"] * F_t ["CO2_ATMOSPHERE", h, td]);
+print " CO2 centralised", sum {  h in HOURS, td in TYPICAL_DAYS } (layers_in_out["CO2_ATMOSPHERE", "CO2_CENTRALISED"] * F_t ["CO2_ATMOSPHERE", h, td]);
+print " CO2 decentralised", sum {t in PERIODS,  h in HOURS, td in TYPICAL_DAYS } (layers_in_out["CO2_EMISSIONS", "CO2_DECENTRALISED"] * F_t ["CO2_EMISSIONS", h, td]);
+print " CO2 decentralised", sum { h in HOURS, td in TYPICAL_DAYS } (layers_in_out["CO2_EMISSIONS", "CO2_DECENTRALISED"] * F_t ["CO2_EMISSIONS", h, td]);
+print " CO2 atmo", sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH,  h in HOURS, td in TYPICAL_DAYS} (layers_in_out[i, "CO2_ATMOSPHERE"] * F_t [i, h, td]);
+print "GWP_op", sum {h in HOURS, td in TYPICAL_DAYS} CO2_ATM[h, td];
+print "Total GWP", TotalGWP;

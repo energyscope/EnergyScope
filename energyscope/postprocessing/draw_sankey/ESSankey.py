@@ -62,6 +62,7 @@ def drawSankey(path="./",outputfile='TO_REPLACE',auto_open=True):
     if outputfile.parent.stem == "input2sankey":
         outputfile = outputfile.parent.parent / outputfile.name
     flows = pd.read_csv(path / "input2sankey.csv")
+    print(flows)
     fig = genSankey(flows,cat_cols=['source','target'],value_cols='realValue',title='Energy',color_col='layerColor')
     fig.write_html(str(outputfile), auto_open=auto_open)
     #fig.show()

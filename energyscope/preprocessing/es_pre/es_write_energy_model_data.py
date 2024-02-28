@@ -35,7 +35,8 @@ def print_data(config):
     TODO add doc
     """
 
-    cs = Path(__file__).parents[3] / 'case_studies'
+    #cs = Path(__file__).parents[3] / 'case_studies'
+    cs = Path(config['case_studies'])
 
     # make dir and parents
     (cs / config['case_study']).mkdir(parents=True, exist_ok=True)
@@ -51,7 +52,7 @@ def print_data(config):
     storage_eff_in = data['Storage_eff_in']
     storage_eff_out = data['Storage_eff_out']
     time_series = data['Time_series']
-
+    #print('test', layers_in_out)
     if config['printing']:
         logging.info('Printing ESTD_data.dat')
 
@@ -66,6 +67,7 @@ def print_data(config):
         resources_simple = resources.loc[:, ['avail', 'gwp_op', 'c_op']]
         resources_simple.index.name = 'param :'
         resources_simple = resources_simple.astype('float')
+        #print(resources, resources_simple)
         # pre-processing eud
         eud_simple = eud.drop(columns=['Category', 'Subcategory', 'Units'])
         eud_simple.index.name = 'param end_uses_demand_year:'
@@ -96,6 +98,11 @@ def print_data(config):
         share_freight_boat_max = config['all_data']['Misc']['share_freight_boat_max']
         share_heat_dhn_min = config['all_data']['Misc']['share_heat_dhn_min']
         share_heat_dhn_max = config['all_data']['Misc']['share_heat_dhn_max']
+        min_biomass_use_dec_heat_lt = config['all_data']['Misc']['min_biomass_use_dec_heat_lt']
+        min_biomass_use_dhn_heat_lt = config['all_data']['Misc']['min_biomass_use_dhn_heat_lt']
+        min_biomass_use_heat_ht = config['all_data']['Misc']['min_biomass_use_heat_ht']
+        min_share_e_fuel_in_ft = config['all_data']['Misc']['min_share_e_fuel_in_ft']
+        min_waste_use = config['all_data']['Misc']['min_waste_use']
 
         share_ned = pd.DataFrame.from_dict(config['all_data']['Misc']['share_ned'], orient='index',
                                            columns=['share_ned'])
@@ -121,9 +128,13 @@ def print_data(config):
         # Building SETS from data #
         SECTORS = list(eud_simple.columns)
         END_USES_INPUT = list(eud_simple.index)
+        #print('end uses categories', end_uses_categories, end_uses_categories.loc[:])
+        #print('end uses categories', end_uses_categories, end_uses_categories.loc[:, 'END_USES_CATEGORIES'])
         END_USES_CATEGORIES = list(end_uses_categories.loc[:, 'END_USES_CATEGORIES'].unique())
         RESOURCES = list(resources_simple.index)
-        RES_IMPORT_CONSTANT = ['GAS', 'GAS_RE', 'H2_RE', 'H2']  # TODO automatise
+        RES_IMPORT_CONSTANT = ['GAS', 'GAS_RE', 'H2_RE', 'H2', 'JETFUEL', 'JETFUEL_RE']  # TODO automatise
+        CO2_CATEGORIES = ['CO2_DECENTRALISED', 'CO2_CENTRALISED','CO2_CAPTURED', 'CO2_ATMOSPHERE', 'OTHER_GHG']
+        CO2_EQ = ['CO2_ATMOSPHERE', 'CO2_EMISSIONS']
         BIOFUELS = list(resources[resources.loc[:, 'Subcategory'] == 'Biofuel'].index)
         RE_RESOURCES = list(
             resources.loc[(resources['Category'] == 'Renewable'), :].index)
@@ -143,6 +154,7 @@ def print_data(config):
         layers_in_out_tech = layers_in_out.loc[~layers_in_out.index.isin(RESOURCES), :]
         TECHNOLOGIES_OF_END_USES_TYPE = []
         for i in END_USES_TYPES:
+            #print(i, layers_in_out_tech)
             li = list(layers_in_out_tech.loc[layers_in_out_tech.loc[:, i] == 1, :].index)
             TECHNOLOGIES_OF_END_USES_TYPE.append(li)
 
@@ -197,6 +209,7 @@ def print_data(config):
                                       '# ev_batt,size [GWh]: Size of batteries per car per technology of EV')
         vehicule_capacity_df = ampl_syntax(vehicule_capacity_df, '# km-pass/h/veh. : Gives the equivalence between '
                                                                  'capacity and number of vehicles.')
+        #occupancy_rate_private_car = ampl_syntax(occupancy_rate_private_car, '# km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.')
         eud_simple = ampl_syntax(eud_simple, '')
         share_ned = ampl_syntax(share_ned, '')
         layers_in_out = ampl_syntax(layers_in_out, '')
@@ -216,6 +229,7 @@ def print_data(config):
 
         # printing sets
         print_set(SECTORS, 'SECTORS', out_path)
+        print_set(CO2_EQ, 'CO2_EQ', out_path)
         print_set(END_USES_INPUT, 'END_USES_INPUT', out_path)
         print_set(END_USES_CATEGORIES, 'END_USES_CATEGORIES', out_path)
         print_set(RESOURCES, 'RESOURCES', out_path)
@@ -234,6 +248,7 @@ def print_data(config):
             print_set(j, 'TECHNOLOGIES_OF_END_USES_TYPE' + '["' + END_USES_TYPES[n] + '"]', out_path)
             n += 1
         newline(out_path)
+        print_set(CO2_CATEGORIES, 'CO2_CATEGORIES', out_path)
         print_set(STORAGE_TECH, 'STORAGE_TECH', out_path)
         print_set(INFRASTRUCTURE, 'INFRASTRUCTURE', out_path)
         newline(out_path)
@@ -325,6 +340,13 @@ def print_data(config):
         newline(out_path)
         print_param('share_heat_dhn_min', share_heat_dhn_min, '', out_path)
         print_param('share_heat_dhn_max', share_heat_dhn_max, '', out_path)
+        newline(out_path)
+        print_param('min_biomass_use_dec_heat_lt', min_biomass_use_dec_heat_lt, '', out_path)
+        print_param('min_biomass_use_dhn_heat_lt', min_biomass_use_dhn_heat_lt, '', out_path)
+        
+        print_param('min_biomass_use_heat_ht', min_biomass_use_heat_ht, '', out_path)
+        print_param('min_share_e_fuel_in_ft', min_share_e_fuel_in_ft, '', out_path)
+        print_param('min_waste_use', min_waste_use, '', out_path)
         newline(out_path)
         print_df('param:', share_ned, out_path)
         newline(out_path)
@@ -419,7 +441,7 @@ def print_data(config):
 
         # selecting time series of TD only
         td_ts = time_series[time_series['D_of_H'].isin(sorted_td['TD_of_days'])]
-
+        print(time_series, td_ts)
         # COMPUTING THE NORM_TD OVER THE YEAR FOR CORRECTION #
         # computing the sum of ts over each TD
         agg_td_ts = td_ts.groupby('D_of_H').sum()

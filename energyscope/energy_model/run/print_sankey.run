@@ -17,6 +17,24 @@ printf "%s,%s,%s,%s,%s,%s\n", "source" , "target", "realValue", "layerID", "laye
 #------------------------------------------
 # SANKEY - RESOURCES
 #------------------------------------------
+
+
+#JETFUEL AVIATION
+if sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t ["JETFUEL", h, td]  ) > 10 then {
+    printf "%s,%s,%.2f,%s,%s,%s\n", "Imp. Jetfuel" , "Jetfuel", sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+                            (layers_in_out["JETFUEL","JETFUEL"] * F_t ["JETFUEL", h, td]  ) / 1000 , "Jetfuel",
+    "#000ECD", "TWh" >> (PathName & "/sankey/input2sankey.csv");
+
+    printf "%s,%s,%.2f,%s,%s,%s\n", "Jetfuel", "Aviation", sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+                            -(layers_in_out["PLANE","JETFUEL"] * F_t ["PLANE", h, td]  ) / 1000 , "Jetfuel",
+    "#808080", "TWh" >> (PathName & "/sankey/input2sankey.csv");
+    }
+
+
+
+
+
+
 ## Ammonia
     # AMMONIA and AMMONIA_RE
 if sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t ["AMMONIA", h, td]  ) > 10 then {

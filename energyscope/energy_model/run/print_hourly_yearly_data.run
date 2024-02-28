@@ -1,0 +1,46 @@
+# LAYERS FLUXES
+print "--------------SAVING LAYERS 2 -----------";
+    for {l in LAYERS}{
+    printf "Td \tPeriods\t" > (PathName & "/hourly_data/layer2_" & l &".txt");
+    for {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH }{
+        printf "%s\t",i >> (PathName & "/hourly_data/layer2_" & l &".txt");
+    }
+    for {j in STORAGE_TECH }{
+        printf "%s_Pin\t",j >> (PathName & "/hourly_data/layer2_" & l &".txt");
+        printf "%s_Pout\t",j >> (PathName & "/hourly_data/layer2_" & l &".txt");
+    }
+    printf "END_USE\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+
+    for {t in PERIODS, td in TYPICAL_DAY_OF_PERIOD[t]}{
+        printf "\n %d \t %d\t %d\t",td,t   >> (PathName & "/hourly_data/layer2_" & l &".txt");
+        for {i in RESOURCES}{
+            if layers_in_out[i, l] = 0 then # Incompatible
+                printf "\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+            else
+
+                printf "%f\t",(sum{h in HOUR_OF_PERIOD[t]}(layers_in_out[i, l] * F_t [i, h, td])) >> (PathName & "/hourly_data/layer2_" & l &".txt");
+        }
+        for {i in TECHNOLOGIES diff STORAGE_TECH}{
+            if layers_in_out[i, l] = 0 then # Incompatible
+                printf "\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+            else{
+                if F[i] = 0 then #No technology installed
+                    printf "\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+                else {
+                    printf "%f\t",(sum{h in HOUR_OF_PERIOD[t]}(layers_in_out[i, l] * F_t [i, h, td])) >> (PathName & "/hourly_data/layer2_" & l &".txt");
+            }}
+        }
+        for {j in STORAGE_TECH}{
+            if storage_eff_in[j, l] = 0 then # Incompatible
+                printf "\t\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+            else {
+                if F[j] = 0 then #No storage
+                    printf "\t\t" >> (PathName & "/hourly_data/layer2_" & l &".txt");
+                else {
+                    printf "%f\t",(sum{h in HOUR_OF_PERIOD[t]}(-Storage_in [j, l, h, td])) >> (PathName & "/hourly_data/layer2_" & l &".txt");
+                    printf "%f\t", (sum{h in HOUR_OF_PERIOD[t]}(Storage_out [j, l, h, td]))>> (PathName & "/hourly_data/layer2_" & l &".txt");
+            }}
+        }
+        printf "%f\t",(sum{h in HOUR_OF_PERIOD[t]} -End_uses [l, h, td])  >> (PathName & "/hourly_data/layer2_" & l &".txt");
+    }
+}

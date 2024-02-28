@@ -5,7 +5,7 @@ from pathlib import Path
 
 from ..common import *
 
-def read_outputs(cs:str, hourly_data=False, layers=[]):
+def read_outputs(cs, hourly_data=False, layers=[]):
     """Reads the EnergyScope outputs in the case study (cs) specified
     Parameters
     ----------
@@ -23,8 +23,9 @@ def read_outputs(cs:str, hourly_data=False, layers=[]):
     outputs: dict()
     Dictionnary containing the different output dataframes as pd.DataFrame
     """
-    path = Path(__file__).parents[2]/'case_studies'/str(cs)/'output'
-
+    #path = Path(__file__).parents[2]/'case_studies'/str(cs)/'output'
+    path = Path(cs['case_studies'])/cs['case_study']/'output'
+    print(path)
     logging.info('Reading outputs from: '+str(path))
     outputs = dict()
     outputs['assets'] = pd.read_csv(path/'assets.txt', sep="\t", skiprows=[1], index_col=False).set_index('TECHNOLOGIES')
@@ -34,6 +35,7 @@ def read_outputs(cs:str, hourly_data=False, layers=[]):
     outputs['losses'] = pd.read_csv(path/'losses.txt', sep='\t', index_col=0)
     outputs['resources_breakdown'] = pd.read_csv(path/'resources_breakdown.txt', sep='\t', index_col=0)
     outputs['year_balance'] = pd.read_csv(path/'year_balance.txt', sep='\t', index_col=0).dropna(how='all', axis=1)
+    outputs['sto_year'] = pd.read_csv(path/'sto_year.txt', sep='\t', index_col=0).dropna(how='all', axis=1)
 
     for o in outputs:
         outputs[o] = clean_col_and_index(outputs[o])
@@ -44,7 +46,7 @@ def read_outputs(cs:str, hourly_data=False, layers=[]):
             outputs[l] = read_layer(cs,l)
     return outputs
 
-def read_layer(cs:str, layer_name, ext='.txt'):
+def read_layer(config, layer_name, ext='.txt'):
     """Reads the output file of the layer specified and returns it as a dataframe
 
         Parameters
@@ -60,8 +62,8 @@ def read_layer(cs:str, layer_name, ext='.txt'):
         df2: pd.DataFrame()
         The stripped dataframe
     """
-
-    layer = pd.read_csv(Path(__file__).parents[2]/'case_studies'/str(cs)/'output' / 'hourly_data' / (layer_name+ext), sep='\t',
+    print(Path(config['case_studies'])/config['case_study']/'output' / 'hourly_data' / (layer_name+ext))
+    layer = pd.read_csv(Path(config['case_studies'])/config['case_study']/'output' / 'hourly_data' / (layer_name+ext), sep='\t',
                                                index_col=[0, 1])
     return clean_col_and_index(layer)
 

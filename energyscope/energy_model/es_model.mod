@@ -62,6 +62,7 @@ set HOUR_OF_PERIOD {t in PERIODS} := setof {h in HOURS, td in TYPICAL_DAYS: (t,h
 ## Additional SETS: only needed for printing out results (not represented in Figure 3).
 set COGEN within TECHNOLOGIES; # cogeneration tech
 set BOILERS within TECHNOLOGIES; # boiler tech
+set CO2_CATEGORIES;
 
 #################################
 ### PARAMETERS [Tables 2.2]   ###
@@ -79,7 +80,7 @@ param end_uses_demand_year {END_USES_INPUT, SECTORS} >= 0 default 0; # end_uses_
 param end_uses_input {i in END_USES_INPUT} := sum {s in SECTORS} (end_uses_demand_year [i,s]); # end_uses_input (Figure 1.4) [GWh]: total demand for each type of end-uses across sectors (yearly energy) as input from the demand-side model. [Mpkm] or [Mtkm] for passenger or freight mobility.
 param i_rate > 0; # discount rate [-]: real discount rate
 param re_share_primary >= 0; # re_share [-]: minimum share of primary energy coming from RE
-param gwp_limit >= 0;    # [ktCO2-eq./year] maximum gwp emissions allowed.
+param gwp_limit ;    # [ktCO2-eq./year] maximum gwp emissions allowed.
 param share_mobility_public_min >= 0, <= 1; # %_public,min [-]: min limit for penetration of public mobility over total mobility 
 param share_mobility_public_max >= 0, <= 1; # %_public,max [-]: max limit for penetration of public mobility over total mobility 
 param share_freight_train_min >= 0, <= 1; # %_rail,min [-]: min limit for penetration of train in freight transportation
@@ -88,6 +89,11 @@ param share_freight_boat_min  >= 0, <= 1; # %_boat,min [-]: min limit for penetr
 param share_freight_boat_max  >= 0, <= 1; # %_boat,min [-]: max limit for penetration of boat in freight transportation
 param share_freight_road_min  >= 0, <= 1; # %_road,min [-]: min limit for penetration of truck in freight transportation
 param share_freight_road_max  >= 0, <= 1; # %_road,min [-]: max limit for penetration of truck in freight transportation
+param min_biomass_use_dec_heat_lt >=0; # Minimal use of biomass for wood decentralised boiler
+param min_biomass_use_dhn_heat_lt >=0; # Minimal use of biomass for wood decentralised boiler
+param min_biomass_use_heat_ht >=0; # Minimal use of biomass for wood decentralised boiler
+param min_share_e_fuel_in_ft >=0; # Minimal share of SAF produced via the PtL process
+param min_waste_use >=0; # Minimal use of waste
 param share_heat_dhn_min >= 0, <= 1; # %_dhn,min [-]: min limit for penetration of dhn in low-T heating
 param share_heat_dhn_max >= 0, <= 1; # %_dhn,max [-]: max limit for penetration of dhn in low-T heating
 param share_ned {END_USES_TYPES_OF_CATEGORY["NON_ENERGY"]} >= 0, <= 1; # %_ned [-] share of non-energy demand per type of feedstocks.
@@ -156,7 +162,7 @@ var TotalCost >= 0; # C_tot [ktCO2-eq./year]: Total GWP emissions in the system.
 var C_inv {TECHNOLOGIES} >= 0; #C_inv [Meuros]: Total investment cost of each technology
 var C_maint {TECHNOLOGIES} >= 0; #C_maint [Meuros/year]: Total O&M cost of each technology (excluding resource cost)
 var C_op {RESOURCES} >= 0; #C_op [Meuros/year]: Total O&M cost of each resource
-var TotalGWP >= 0; # GWP_tot [ktCO2-eq./year]: Total global warming potential (GWP) emissions in the system
+var TotalGWP ; # GWP_tot [ktCO2-eq./year]: Total global warming potential (GWP) emissions in the system
 var GWP_constr {TECHNOLOGIES} >= 0; # GWP_constr [ktCO2-eq.]: Total emissions of the technologies
 var GWP_op {RESOURCES} >= 0; #  GWP_op [ktCO2-eq.]: Total yearly emissions of the resources [ktCO2-eq./y]
 var Network_losses {END_USES_TYPES, HOURS, TYPICAL_DAYS} >= 0; # Net_loss [GW]: Losses in the networks (normally electricity grid and DHN)
@@ -175,13 +181,18 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 		then
 			(end_uses_input[l] / total_time + end_uses_input["LIGHTING"] * electricity_time_series [h, td] / t_op [h, td] ) + Network_losses [l,h,td]
 		else (if l == "HEAT_LOW_T_DHN" then
-			(end_uses_input["HEAT_LOW_T_HW"] / total_time + end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td] ) * Share_heat_dhn + Network_losses [l,h,td]
+			#(end_uses_input["HEAT_LOW_T_HW"] / total_time + end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td] ) * Share_heat_dhn + Network_losses [l,h,td]
+			(end_uses_input["HEAT_LOW_T_HW"] / total_time +  end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td] ) * Share_heat_dhn + Network_losses [l,h,td]
 		else (if l == "HEAT_LOW_T_DECEN" then
 			(end_uses_input["HEAT_LOW_T_HW"] / total_time + end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td] ) * (1 - Share_heat_dhn)
 		else (if l == "MOB_PUBLIC" then
 			(end_uses_input["MOBILITY_PASSENGER"] * mob_pass_time_series [h, td] / t_op [h, td]  ) * Share_mobility_public
 		else (if l == "MOB_PRIVATE" then
 			(end_uses_input["MOBILITY_PASSENGER"] * mob_pass_time_series [h, td] / t_op [h, td]  ) * (1 - Share_mobility_public)
+		else (if l == "MOB_AVIATION" then
+			end_uses_input["MOBILITY_AVIATION"] / total_time
+		else (if l == "MOB_SHIPPING" then
+			end_uses_input["MOBILITY_SHIPPING"] / total_time
 		else (if l == "MOB_FREIGHT_RAIL" then
 			(end_uses_input["MOBILITY_FREIGHT"]   * mob_freight_time_series [h, td] / t_op [h, td] ) *  Share_freight_train
 		else (if l == "MOB_FREIGHT_ROAD" then
@@ -197,7 +208,7 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 		else (if l == "METHANOL" then
 			end_uses_input["NON_ENERGY"] * share_ned ["METHANOL"] / total_time
 		else 
-			0 )))))))))))); # For all layers which don't have an end-use demand
+			0 )))))))))))))); # For all layers which don't have an end-use demand
 
 
 ## Cost
@@ -223,8 +234,8 @@ subject to op_cost_calc {i in RESOURCES}:
 #-----------
 
 # [Eq. 2.6]
-subject to totalGWP_calc:
-	TotalGWP =  sum {i in RESOURCES} GWP_op [i];
+#subject to totalGWP_calc:
+#	TotalGWP =  sum {i in RESOURCES} GWP_op [i];
 	#JUST RESOURCES :          TotalGWP = sum {i in RESOURCES} GWP_op [i];
 	#INCLUDING GREY EMISSIONS: TotalGWP = sum {j in TECHNOLOGIES} (GWP_constr [j] / lifetime [j]) + sum {i in RESOURCES} GWP_op [i];
 	
@@ -269,13 +280,15 @@ subject to resource_constant_import { i in RES_IMPORT_CONSTANT, h in HOURS, td i
 
 # [Eq. 2.13] Layer balance equation with storage. Layers: input > 0, output < 0. Demand > 0. Storage: in > 0, out > 0;
 # output from technologies/resources/storage - input to technologies/storage = demand. Demand has default value of 0 for layers which are not end_uses
-subject to layer_balance {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
+subject to layer_balance {l in LAYERS diff CO2_CATEGORIES, h in HOURS, td in TYPICAL_DAYS}:
 		sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH } 
 		(layers_in_out[i, l] * F_t [i, h, td]) 
 		+ sum {j in STORAGE_TECH} ( Storage_out [j, l, h, td] - Storage_in [j, l, h, td] )
 		- End_uses [l, h, td]
 		= 0;
-		
+
+
+
 ## Storage	
 #---------
 	
@@ -346,11 +359,14 @@ subject to operating_strategy_mob_passenger{j in TECHNOLOGIES_OF_END_USES_CATEGO
 subject to operating_strategy_mobility_freight{j in TECHNOLOGIES_OF_END_USES_CATEGORY["MOBILITY_FREIGHT"], h in HOURS, td in TYPICAL_DAYS}:
 	F_t [j, h, td]   = Shares_mobility_freight [j] * (end_uses_input["MOBILITY_FREIGHT"] * mob_freight_time_series [h, td] / t_op [h, td] );
 
+# Each freight mobility technology (j) has to supply a constant share  (Shares_mobility_freight[j]) of the passenger mobility demand
+#subject to operating_strategy_mobility_aviation{j in TECHNOLOGIES_OF_END_USES_CATEGORY["MOBILITY_AVIATION"], h in HOURS, td in TYPICAL_DAYS}:
+#	F_t [j, h, td]   = (end_uses_input["MOBILITY_AVIATION"]  / t_op [h, td] );
+
 # [Eq. 2.26] To impose a constant share in the mobility
 subject to Freight_shares :
 	Share_freight_train + Share_freight_road + Share_freight_boat = 1; # Should not be required (redundant)... But kept for security
 
-	
 ## Thermal solar & thermal storage:
 
 # [Eq. 2.27] relation between decentralised thermal solar power and capacity via period capacity factor.
@@ -400,8 +416,7 @@ subject to peak_lowT_dhn:
 #-----------------------------------------------------------------------------------------------------------------------
 
 # [Eq. 2.34]  constraint to reduce the GWP subject to Minimum_gwp_reduction :
-subject to Minimum_GWP_reduction :
-	TotalGWP <= gwp_limit;
+
 
 # [Eq. 2.35] Minimum share of RE in primary energy supply
 subject to Minimum_RE_share :
@@ -414,6 +429,7 @@ subject to f_max_perc {eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE
 	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j,h,td] * t_op[h,td]) <= fmax_perc [j] * sum {j2 in TECHNOLOGIES_OF_END_USES_TYPE[eut], t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j2, h, td] * t_op[h,td]);
 subject to f_min_perc {eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE[eut]}:
 	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j,h,td] * t_op[h,td]) >= fmin_perc [j] * sum {j2 in TECHNOLOGIES_OF_END_USES_TYPE[eut], t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j2, h, td] * t_op[h,td]);
+	#sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j,h,td] * t_op[h,td]) >= fmin_perc [j] * sum {j2 in TECHNOLOGIES_OF_END_USES_TYPE[eut], t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [j2, h, td] * t_op[h,td]);
 
 # [Eq. 2.37] Energy efficiency is a fixed cost
 subject to extra_efficiency:
@@ -428,10 +444,66 @@ subject to solar_area_limited :
 	F["PV"] / power_density_pv + ( F ["DEC_SOLAR"] + F ["DHN_SOLAR"] ) / power_density_solar_thermal <= solar_area;
 
 
+
+##############################
+#WORK IN PROGRESS
+##############################
+
+#New variables and set 
+set CO2_EQ;
+
+var CO2_ATM  {HOURS, TYPICAL_DAYS} ; 
+
+#Minimal Emissions from agriculture and cement production
+subject to agri_emissions:
+	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t ['AGRICULTURE_EMISSIONS',h,td] * t_op[h,td]) >= fmin_perc ['AGRICULTURE_EMISSIONS'] * (F['AGRICULTURE_EMISSIONS']);
+subject to cement_emissions:
+	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t ['CEMENT_PROCESS',h,td] * t_op[h,td]) >= (F['CEMENT_PROCESS']);
+ 
+#Introduced to modelize a minimal use of biomass
+subject to min_biomass_use_dec :	
+	sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (F_t ["DEC_BOILER_WOOD", h, td] * t_op [h, td]) >= min_biomass_use_dec_heat_lt/1.1877; 
+
+subject to min_biomass_use_dhn :	
+	sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (F_t ["DHN_BOILER_WOOD", h, td] * t_op [h, td]) >= min_biomass_use_dhn_heat_lt/1.1678; 
+
+subject to min_biomass_use_ind :	
+	sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (F_t ["IND_BOILER_WOOD", h, td] * t_op [h, td]) >= min_biomass_use_heat_ht/1.1678; 
+
+subject to min_shr_e_fuel_in_ft :	
+	sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} ((F_t ["CO2_TO_FT", h, td] * t_op [h, td]) - min_share_e_fuel_in_ft*(F_t ["E_WOOD_TO_FT", h, td] * t_op [h, td]+(F_t ["CO2_TO_FT", h, td] * t_op [h, td]) + (F_t ["WOOD_TO_FT", h, td] * t_op [h, td]))) >= 0; 
+
+#Introduced to ensure the use of waste as a source of energy
+subject to min_waste_use_eq :
+	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t ["WASTE", h, td] * t_op [h, td]) >= min_waste_use;
+
+#Equilibrium between GHG emissions
+subject to CO2_DECENTRALISED_equilibrium {h in HOURS, td in TYPICAL_DAYS }:
+	sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH}(layers_in_out[i, "CO2_DECENTRALISED"] * F_t [i, h, td]) = 0 ;
+
+subject to CO2_CENTRALISED_equilibrium {h in HOURS, td in TYPICAL_DAYS }:
+	sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH} (layers_in_out[i, "CO2_CENTRALISED"] * F_t [i, h, td]) = 0 ;
+
+subject to CO2_CAPTURED_equilibrium {h in HOURS, td in TYPICAL_DAYS }:
+	sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH} (layers_in_out[i, "CO2_CAPTURED"] * F_t [i, h, td]) = 0 ;
+
+subject to OTHER_GHG_equilibrium {h in HOURS, td in TYPICAL_DAYS }:
+	sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH} (layers_in_out[i, "OTHER_GHG"] * F_t [i, h, td]) = 0 ;
+
+subject to CO2_ATM_equilibrium {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
+	sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH } (layers_in_out[i, "CO2_ATMOSPHERE"] * F_t [i, h, td]) = CO2_ATM[h, td];
+
+#Finalize the computation of emissions in the atmosphere and add the 'grey' carbon emissions 
+subject to totalGWP_calc:
+	TotalGWP =  sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} CO2_ATM[h, td] + sum{j in TECHNOLOGIES} GWP_constr[j]/lifetime[j];
+
+#Limitation of GWP emissions
+subject to Minimum_GWP_reduction :
+	TotalGWP <= gwp_limit;
 ##########################
 ### OBJECTIVE FUNCTION ###
+
 ##########################
 
 # Can choose between TotalGWP and TotalCost
 minimize obj: TotalCost;
-

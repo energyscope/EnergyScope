@@ -33,19 +33,22 @@ def build_td_of_days(config):
     Creates the .dat files 'td_of_days.out' and 'TD_of_days_XX.out' in the
     data_dir directory
     """
-    print('test pourquoi')
     all_data = config['all_data']
     
     # pivot ts to have (365x(24*N_ts))
     n_daily_ts = pivot_ts(all_data['Time_series'].copy())
     weights = pd.DataFrame()
+    #print(weights)
     compute_cell_w(all_data, weights)
+    #print(weights, 2)
     normalize_weights(weights)
+    #print(weights, 3)
     n_data = weight(weights, n_daily_ts)
-    
+    #print(n_data)
+    #print(weights, 'weights')
     # run clustering algorithm
-    print('test 1')
     td_of_days = kmedoid_clustering(config, n_data, weights)
+    #print(td_of_days)
     td_of_days.to_csv(config['step1_path'] / 'td_of_days.out', index=False, header=False)
     return
 
@@ -64,7 +67,6 @@ def pivot_ts(ts):
     Normalized and pivoted time series in the daily format (365x(N_ts*24))
     """
     ###### THE FOLLOWING LINE MIGHT NEED TO BE ADAPTED ######
-    print('test 1')
     ts.rename(columns={'Electricity (%_elec)': 'LIGHTING', 'Space Heating (%_sh)': 'HEAT_LOW_T_SH'}, inplace=True)
     ts_names = ts.columns
     # normalize the timeseries
@@ -198,28 +200,29 @@ def kmedoid_clustering(config, n_data, weights):
     print_dat(data_path, n_data, weights, nbr_td)
 
     # define options
-    cplex_options = ['predual=-1 method=2 crossover=0 prepasses=3 barconvtol=1e-6 presolve=-1']#licfile=C:/Users/LM272782/gurobi.lic']
+    cplex_options = ['mipdisplay=5',
+                     'mipinterval=1000',
+                     'mipgap=1e-6']
     cplex_options_str = ' '.join(cplex_options)
     options = {'show_stats': 3,
                'log_file': str(log_file),
                'times': 1,
                'gentimes': 1,
-               'solver': 'cbc'#
-               #,'gurobi_options': cplex_options_str
+               'solver': 'gurobi'
+               #,'cplex_options': cplex_options_str
                }
-    print('quoicoubeh')
+
     # using AMPL_path if specified. Otherwise, we assume ampl is in environment variables
     if config['AMPL_path'] is None:
-        print('test')
         ampl_command = 'ampl ' + run_file
     else:
         config['AMPL_path'] = Path(config['AMPL_path'])
         print('AMPL path is', config['AMPL_path'])
         config['ampl_options']['solver'] = config['AMPL_path'] / config['ampl_options']['solver']
-        ampl_command = str(config['AMPL_path'] / 'cbc ') + run_file
+        ampl_command = str(config['AMPL_path'] / 'ampl ') + run_file
 
     # print .run
-    print_run(run_fn=str(step1_path / run_file), mod_fns=[mod_path],
+    print_run(run_fn=str(step1_path / run_file), mod_fns=[str(mod_path)],
               dat_fns=[str(data_path)],
               options=options, output_dir=step1_path,
               print_files=['printing_outputs.run'])
@@ -229,7 +232,6 @@ def kmedoid_clustering(config, n_data, weights):
     logging.info('Running kmedoid clustering')
 
     try:
-        print('try_begin')
         run(ampl_command, shell=True, check=True)
     except CalledProcessError as e:
         print("The run didn't end normally.")

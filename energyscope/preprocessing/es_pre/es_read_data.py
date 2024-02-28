@@ -61,13 +61,16 @@ def load_config(config_fn: str, project_path: Path):
     """
 
     # Load parameters
-    cfg = yaml.load(open(config_fn, 'r'), Loader=yaml.FullLoader)
+    #print(config_fn)
+    cfg = yaml.load(open(os.path.join(project_path, config_fn ), 'r'), Loader=yaml.FullLoader)
     # Extend path
     for param in ['data_dir', 'es_path', 'cs_path', 'step1_path']:
         cfg[param] = project_path / cfg[param]
 
     # Extend path for log_file
-    cfg['ampl_options']['log_file'] = str(cfg['cs_path'] / cfg['case_study'] / cfg['ampl_options']['log_file'])
+    #print(str(cfg['case_study'] / cfg['ampl_options']['log_file']))
+    #print(os.path.join(config_fn['case_studies'], config_fn['case_study']))
+    #cfg['ampl_options']['log_file'] = os.path.join(config_fn['case_studies'], config_fn['case_study'], cfg['ampl_options']['log_file'])#str(cfg['case_studies'] / cfg['case_study'] / cfg['ampl_options']['log_file'])
 
     return cfg
 
@@ -90,15 +93,15 @@ def import_data(config: dict):
     data_dir = config['data_dir']
     logging.info('Importing data files from ' + str(data_dir))
     # Reading CSV #
-    eud = pd.read_csv(data_dir / 'Demand.csv', sep=';', index_col=2, header=0)
-    resources = pd.read_csv(data_dir / 'Resources.csv', sep=';', index_col=2, header=2)
-    technologies = pd.read_csv(data_dir / 'Technologies.csv', sep=';', index_col=3, header=0, skiprows=[1])
-    end_uses_categories = pd.read_csv(data_dir / 'END_USES_CATEGORIES.csv', sep=';')
-    layers_in_out = pd.read_csv(data_dir / 'Layers_in_out.csv', sep=';', index_col=0)
-    storage_characteristics = pd.read_csv(data_dir / 'Storage_characteristics.csv', sep=';', index_col=0)
-    storage_eff_in = pd.read_csv(data_dir / 'Storage_eff_in.csv', sep=';', index_col=0)
-    storage_eff_out = pd.read_csv(data_dir / 'Storage_eff_out.csv', sep=';', index_col=0)
-    time_series = pd.read_csv(data_dir / 'Time_series.csv', sep=';', header=0, index_col=0)
+    eud = pd.read_excel(data_dir / 'Demand.xlsx', index_col=2, header=0)
+    resources = pd.read_excel(data_dir / 'Resources.xlsx', index_col=2, header=2)
+    technologies = pd.read_excel(data_dir / 'Technologies.xlsx', index_col=3, header=0, skiprows=[1])
+    end_uses_categories = pd.read_csv(data_dir / 'END_USES_CATEGORIES.csv', sep='\t')
+    layers_in_out = pd.read_excel(data_dir / 'Layers_in_out.xlsx', index_col=0)
+    storage_characteristics = pd.read_excel(data_dir / 'Storage_characteristics.xlsx', index_col=0)
+    storage_eff_in = pd.read_excel(data_dir / 'Storage_eff_in.xlsx', index_col=0)
+    storage_eff_out = pd.read_excel(data_dir / 'Storage_eff_out.xlsx', index_col=0)
+    time_series = pd.read_excel(data_dir / 'Time_series.xlsx', header=0, index_col=0)
 
     # Reading misc.json
     misc = read_json(data_dir / 'misc.json')

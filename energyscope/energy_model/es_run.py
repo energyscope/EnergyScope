@@ -14,7 +14,7 @@ import shutil
 from subprocess import CalledProcessError, run
 from pathlib import Path
 
-#from energyscope import print_run
+from energyscope import print_run
 
 def run_es(config):
     """
@@ -24,7 +24,8 @@ def run_es(config):
     """
     two_up = Path(__file__).parents[2]
 
-    cs = two_up / 'case_studies'
+    #cs = two_up / 'case_studies'
+    cs = Path(config['case_studies'])
     run_file = 'ESTD_main.run'
 
     # creating output directory
@@ -38,7 +39,7 @@ def run_es(config):
         # call('ampl '+run, shell=True)
     else:
         config['AMPL_path'] = Path(config['AMPL_path'])
-        print('AMPL path is', config['AMPL_path'])
+        #print('AMPL path is', config['AMPL_path'])
         config['ampl_options']['solver'] = config['AMPL_path'] / config['ampl_options']['solver']
         ampl_command = str(config['AMPL_path'] / 'ampl ') + run_file
 
@@ -46,11 +47,14 @@ def run_es(config):
     shutil.copyfile((config['es_path'] / 'es_model.mod'), (cs / config['case_study'] / 'es_model.mod'))
     # list printing files to consider according to config
     ampl_run_dir = Path(__file__).parent / 'run'
+    #os.remove("C:\Users\LM272782\Documents\Energyscope\FRANCE\Version_Python carbone\case_studies\ref_run\output\CO2.txt")
     print_files = [str(ampl_run_dir / 'print_year_summary.run')]
     if config['print_hourly_data']:
         print_files.append(str(ampl_run_dir / 'print_hourly_data.run'))
-    if config['print_sankey']:
-        print_files.append(str(ampl_run_dir / 'print_sankey.run'))
+    if config['print_hourly_yearly_data']:
+        print_files.append(str(ampl_run_dir / 'print_hourly_yearly_data.run'))
+    #if config['print_sankey']:
+        #print_files.append(str(ampl_run_dir / 'print_sankey.run'))
     # print .run to case_study directory
     print_run(run_fn=(cs / config['case_study'] / run_file), mod_fns=[(cs / config['case_study'] / 'es_model.mod')],
               dat_fns=[(cs / config['case_study'] / 'ESTD_data.dat'),
@@ -63,6 +67,7 @@ def run_es(config):
     logging.info('Running EnergyScope')
 
     try:
+        print(ampl_command)
         run(ampl_command, shell=True, check=True)
     except CalledProcessError as e:
         print("The run didn't end normally.")

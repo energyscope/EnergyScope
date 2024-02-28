@@ -8,17 +8,17 @@
 ################################################################################
 
 # Load model
-model "C:\Users\LM272782\Documents\GitHub\EnergyScope\energyscope\preprocessing\td_selection\td_main.mod";
+model "C:\Users\LM272782\Documents\1 - Energyscope\FRANCE\Version_Python_Carbone\energyscope\preprocessing\td_selection\td_main.mod";
 
 # Load data
-data "C:\Users\LM272782\Documents\GitHub\EnergyScope\energyscope\preprocessing\td_selection\data.dat";
+data "C:\Users\LM272782\Documents\1 - Energyscope\FRANCE\Version_Python_Carbone\energyscope\preprocessing\td_selection\data.dat";
 
 # Run options
 option show_stats "3";
-option log_file "C:\Users\LM272782\Documents\GitHub\EnergyScope\energyscope\preprocessing\td_selection\log.txt";
+option log_file "C:\Users\LM272782\Documents\1 - Energyscope\FRANCE\Version_Python_Carbone\energyscope\preprocessing\td_selection\log.txt";
 option times "1";
 option gentimes "1";
-option solver "cbc";
+option solver "gurobi";
 
 # Solve
 solve;
@@ -33,7 +33,7 @@ display _solve_elapsed_time;
 
 
 # Saving sets and parameters to output file
-param PathName symbolic := "C:\Users\LM272782\Documents\GitHub\EnergyScope\energyscope\preprocessing\td_selection";
+param PathName symbolic := "C:\Users\LM272782\Documents\1 - Energyscope\FRANCE\Version_Python_Carbone\energyscope\preprocessing\td_selection";
 
 if solve_result = "limit" then { # To avoid post treatment error
     print "TIME OUT";

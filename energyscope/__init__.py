@@ -73,3 +73,6 @@ from .postprocessing.postprocessing import *
 from .postprocessing.plots import *
 from .postprocessing.draw_sankey.ESSankey import drawSankey
 from .energy_model.es_run import *
+from .energy_model.es_run_sensi import *
+from .postprocessing.SANKEY import *
+from .GSA_test import *
