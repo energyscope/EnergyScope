@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
+import plotly.graph_objects as go
+from matplotlib import colors
+import os
 from energyscope import elec_order_graphs, plotting_names, rename_storage_power, colors_elec
 
 
@@ -215,3 +217,107 @@ def plot_barh(plotdata: pd.DataFrame, treshold=0.15, title='', x_label='', y_lab
         fig.show()
 
     return fig,ax
+
+
+
+def Sankey_Energy(ampl):
+    """Plot annual energy Sankey diagram
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    F_t = ampl.get_variable("F_t").get_values().to_pandas(multi_index=True).reset_index().rename(
+        columns={"index0": "tech_name", "index1": "h", "index2": "td", "F_t.val": "value"})
+    lyrio = ampl.get_parameter("layers_in_out").get_values().to_pandas().reset_index().rename(
+        columns={"index0": "tech_name", "index1": "flow_name", "layers_in_out": "value"})
+    HOUR_OF_PERIOD = pd.DataFrame(ampl.get_entity("T_H_TD").get_values().to_list(), columns=['i', 'h', 'td']).set_index(
+        'i')
+    MOB_list = sorted(['MOB_PRIVATE', 'MOB_AVIATION', 'MOB_PUBLIC', 'MOB_FREIGHT_RAIL', 'MOB_FREIGHT_ROAD'])
+    list_storage = ampl.get_set("STORAGE_TECH").get_values().to_pandas().index.values
+
+    df_flow = F_t.groupby(['tech_name', 'td']).sum().drop(['h'], axis=1).join(HOUR_OF_PERIOD.groupby('td').count() / 24,
+                                                                              on='td')  # Sum hourly profile for each TD + Merge occurence of TD per year
+    df_flow = df_flow[df_flow['value'] != 0]  # Cleaning
+    df_flow['value'] = df_flow['value'] * df_flow['h']  # kW * h per td
+
+    df_flow = df_flow.merge(lyrio.rename(columns={'value': 'value_lyrio'}), on='tech_name')  # Merge lyrio flow
+    df_flow = df_flow[df_flow['value_lyrio'] != 0]  # Cleaning
+    df_flow['value'] = (df_flow['value_lyrio'] * df_flow['value'])  # kW of demand and supply * h per td
+
+    df_flow.drop(['h', 'value_lyrio'], axis=1, inplace=True)  # Cleaning
+
+    df_flow.rename(columns={'tech_name': 'target', 'flow_name': 'source'}, inplace=True)  # Rename
+    df_flow.loc[df_flow['value'] > 0, ['target', 'source']] = df_flow.loc[
+        df_flow['value'] > 0, ['source', 'target']].to_numpy()  # Transform negative flow as source
+    df_flow['value'] = abs(df_flow['value'])  # Transform source flow to be positive
+
+    df_flow = df_flow.groupby(['target', 'source']).sum().reset_index()  # Aggregate to yearly value
+    df_flow.loc[df_flow['target'] == df_flow['source'], 'source'] = 'IMP_' + df_flow.loc[
+        df_flow['target'] == df_flow['source'], 'source'].astype(str)  # Transform name imported resources
+    df_flow = df_flow[~df_flow.loc[:, 'source'].str.startswith('IMP_RES').values]  # Remove node with IMP_RES
+
+    # Drop CO2 flow
+    df_flow = df_flow[~df_flow['source'].str.contains("CO2_")]
+    df_flow = df_flow[~df_flow['target'].str.contains("CO2_")]
+
+    df_flow.sort_values('source', inplace=True)
+    # Transform pkm & tkm into GWh
+    df_flow.loc[df_flow[df_flow['target'].isin(MOB_list)].index, 'value'] = \
+    df_flow.loc[df_flow['target'].isin(df_flow.loc[df_flow['target'].isin(MOB_list), 'source']), :].sort_values(
+        'target')['value'].values
+    # Transform kt into GWh
+    df_flow.loc[df_flow['target'] == 'HVC', 'value'] = df_flow.loc[df_flow['target'].isin(
+        df_flow.loc[df_flow['target'] == 'HVC', 'source']), :].groupby('target').sum().values
+
+    df_flow = df_flow[df_flow['value'] > 500]  # Remove small flows
+
+    node = np.unique(np.concatenate((df_flow['source'].unique(), df_flow['target'].unique())))  # Get the list of nodes
+
+
+    # techno_color = pd.read_excel(os.getcwd()+'/ColorSankey.xlsx', index_col=False)
+    # df_flow = df_flow.merge(techno_color,on=('target','source'))
+
+    df_sankey = df_flow.replace(node, range(len(node)))  # Rename techno into numbers
+
+    opacity = 0.5
+
+    fig = go.Figure(data=[go.Sankey(
+        valueformat=".0f",
+        valuesuffix="",  # "TWh",
+        # Define nodes
+        node=dict(
+            pad=15,
+            thickness=15,
+            line=dict(color="black", width=0.5),
+            label=node,
+            color="cornflowerblue"
+        ),
+        # Add links
+        link=dict(
+            source=df_sankey['source'],
+            target=df_sankey['target'],
+            value=df_sankey['value'],
+            label=df_sankey['target'],
+            # color =  df_sankey['color'].apply(lambda h: hexToRGB(h,opacity))
+        ))])
+
+    fig.update_layout(title_text="Sankey", font_size=10, font_color="black", paper_bgcolor="white")
+    fig.write_html(os.getcwd() + "/Sankey.html")
+    fig.show()
+
+
+def hexToRGB(hex, alpha):
+    hex = hex.lstrip('#')
+    r = int(hex[0:2], 16)
+    g = int(hex[2:4], 16)
+    b = int(hex[4:6], 16)
+
+    if (alpha):
+        return "rgba(%d, %d, %d, %.2f)" % (r, g, b, alpha)
+    else:
+        return "rgba(%d, %d, %d)" % (r, g, b)

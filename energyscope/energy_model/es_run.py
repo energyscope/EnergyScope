@@ -73,4 +73,18 @@ def run_es(config):
 
     logging.info('End of run')
 
+
+
+    ###### Deployment AMPLpy ######
+    #codes in es_run.py & td_selection
+    # the lines below are meant to replace the function
+    #amplpy_model = AMPL()
+    #amplpy_model.set_option('solver', 'gurobi'),
+    #cs = Path(__file__).parents[2] / 'case_studies'
+    #shutil.copyfile((config['es_path'] / 'es_model.mod'), (cs / config['case_study'] / 'es_model.mod'))  # Useful ???
+    #amplpy_model.read(os.path.join(cs, config['case_study'], "es_model.mod")),
+    #amplpy_model.read_data(os.path.join(cs, config['case_study'], "ESTD_data.dat")),
+    #amplpy_model.read_data(os.path.join(cs, config['case_study'], "ESTD_12TD.dat")),
+    #amplpy_model.solve()
+
     return

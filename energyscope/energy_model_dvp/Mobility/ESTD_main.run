@@ -1,0 +1,33 @@
+################################################################################
+##																			  ##
+##                     			MASTER RUN								      ##
+##																			  ##
+################################################################################
+## WARNING: when executed from a working directory, it is required to specify  #
+## the path of the .mod, .dat, and .run files from the working directory.      #
+################################################################################
+
+# Load model
+model es_model.mod;
+data ESTD_data;
+data ESTD_12TD.dat;
+
+# Run options
+option show_stats "3";
+option presolve "10";
+option presolve_eps "1e-7";
+option presolve_fixeps "1e-7";
+option show_boundtol "0";
+option _log_input_only "False";
+option solver "gurobi";
+option gurobi_options "predual=-1 method=2 crossover=0 prepasses=3 barconvtol=1e-6 presolve=-1";
+
+# Solve
+solve;
+
+option times 0; # show time
+option gentimes 0; # show time
+
+display solve_result;
+display solve_result_num;
+display _solve_elapsed_time;
