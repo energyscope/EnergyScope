@@ -238,6 +238,67 @@ def kmedoid_clustering(config, n_data, weights):
 
     logging.info('End of kmedoid clustering')
 
+
+    ###### Deployment AMPLpy ######
+    #codes in es_run.py & td_selection
+    # the lines below are meant to replace the function
+
+    ## extract info of interest from config
+    #nbr_td = config['nbr_td']
+    #step1_path = config['step1_path']
+#
+    ## define path
+    #mod_path = step1_path / 'td_main.mod'
+    #data_path = step1_path / 'data.dat'
+    #log_file = step1_path / 'log.txt'
+    #run_file = 'td_main.run'
+#
+    #amplpy_TD = AMPL()
+#
+    ## logging info
+    #logging.info('Starting kmedoid clustering of typical days based on ' + str(data_path))
+#
+    ## print .dat file
+    #print_dat(data_path, n_data, weights, nbr_td)
+#
+    #amplpy_TD.set_option("show_stats", 3)
+    #amplpy_TD.set_option("log_file", str(log_file))
+    #amplpy_TD.set_option("times", 1)
+    #amplpy_TD.set_option("gentimes", 1)
+    #amplpy_TD.set_option("solver", 'cplex')
+    #amplpy_TD.set_option("mipdisplay", 5)
+    #amplpy_TD.set_option("mipinterval", 1000)
+    #amplpy_TD.set_option("mipgap", 1e-6)
+#
+    #amplpy_TD.read(os.path.join(step1_path, "td_main.mod")),
+    #amplpy_TD.read_data(os.path.join(step1_path, "data.dat")),
+#
+    #os.chdir(step1_path)
+    ## running ES
+    #logging.info('Running kmedoid clustering')
+#
+    #try:
+    #    # run(ampl_command, shell=True, check=True)
+    #    amplpy_TD.solve()
+#
+    #except CalledProcessError as e:
+    #    print("The run didn't end normally.")
+    #    print(e)
+    #    sys.exit(1)
+#
+    ## vvv actual function that generate the TDs vvv
+    #### Printing output
+    ## for {i in DAYS}{
+    ##    printf "%d\t\n", (sum{j in DAYS} j * Cluster_matrix[j, i]) > "td_of_days.out";
+    ## }
+    ###### ^^^ ----- ^^^
+    #Cluster_matrix = amplpy_TD.get_variable('Cluster_matrix').get_values().to_pandas(multi_index=True).reset_index()
+    #DAYS = amplpy_TD.get_set('DAYS').get_values().to_pandas()
+#
+    #td_of_days = Cluster_matrix[Cluster_matrix['Cluster_matrix.val'] > 0]['index0']
+#
+    ## td_of_days = pd.read_csv('td_of_days.out', header=None)
+
     return td_of_days
 
 

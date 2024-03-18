@@ -50,6 +50,8 @@ Heat;Heat low temperature decentralised;Boiler wood (decentralised); DEC_BOILER_
 Heat;Heat low temperature decentralised;Boiler oil (decentralised); DEC_BOILER_OIL ;142.38;8.54013;21.09;17;1;0;1;0;1.00E+15;
 Heat;Heat low temperature decentralised;Solar thermal (decentralised); DEC_SOLAR ;688.69;7.64116;221.22;20;1;0;1;0;1.00E+15;
 Heat;Heat low temperature decentralised;Direct electrical heaters (decentralised); DEC_DIRECT_ELEC ;37.8;0.16521;1.47;15;1;0;1;0;1.00E+15;
+Heat;Heat low temperature decentralised;Renovation of single-famile houses;SFH_RENO;7200;0;0;40;1;0;1;0;1.00E+01;
+Heat;Heat low temperature decentralised;Renovation of multiple-famile houses;MFH_RENO;7200;0;0;40;1;0;1;0;1.00E+01;
 Mobility;Passenger public;Tram or metro; TRAMWAY_TROLLEY ;625;12.5;0;30;0.34247;0;0.3;0;1.00E+15;
 Mobility;Passenger public;Bus diesel; BUS_COACH_DIESEL ;631.97;30.5556;0;15;0.2968;0;1;0;1.00E+15;
 Mobility;Passenger public;Bus diesel hybrid; BUS_COACH_HYDIESEL ;861.1;33.3333;0;15;0.2968;0;1;0;1.00E+15;

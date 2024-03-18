@@ -53,7 +53,7 @@ set V2G within TECHNOLOGIES;   # EVs which can be used for vehicle-to-grid (V2G)
 set EVs_BATT   within STORAGE_TECH; # specific battery of EVs
 set EVs_BATT_OF_V2G {V2G}; # Makes the link between batteries of EVs and the V2G technology
 set STORAGE_DAILY within STORAGE_TECH;# Storages technologies for daily application 
-set TS_OF_DEC_TECH {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}} ; # Makes the link between TS and the technology producing the heat
+set TS_OF_DEC_TECH {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}} ; # Makes the link between TS and the technology producing the heat
 
 ##Additional SETS added just to simplify equations.
 set TYPICAL_DAY_OF_PERIOD {t in PERIODS} := setof {h in HOURS, td in TYPICAL_DAYS: (t,h,td) in T_H_TD} td; #TD_OF_PERIOD(T)
@@ -62,6 +62,19 @@ set HOUR_OF_PERIOD {t in PERIODS} := setof {h in HOURS, td in TYPICAL_DAYS: (t,h
 ## Additional SETS: only needed for printing out results (not represented in Figure 3).
 set COGEN within TECHNOLOGIES; # cogeneration tech
 set BOILERS within TECHNOLOGIES; # boiler tech
+
+
+## INFRA ## Grid infrastructure sets
+set ELECTRICITY_LAYERS within LAYERS;
+set NG_LAYERS within LAYERS;
+set H2_LAYERS within LAYERS;
+set GRIDS_OF_LAYERS{ELECTRICITY_LAYERS union NG_LAYERS union H2_LAYERS};
+set GRIDS;
+# Printing sets
+set INFRASTRUCTURE_ELEC_GRID;
+set INFRASTRUCTURE_GAS_GRID;
+set INFRASTRUCTURE_ELEC_STORAGE;
+set INFRASTRUCTURE_GAS_STORAGE;
 
 #################################
 ### PARAMETERS [Tables 2.2]   ###
@@ -92,15 +105,15 @@ param share_heat_dhn_min >= 0, <= 1; # %_dhn,min [-]: min limit for penetration 
 param share_heat_dhn_max >= 0, <= 1; # %_dhn,max [-]: max limit for penetration of dhn in low-T heating
 param share_ned {END_USES_TYPES_OF_CATEGORY["NON_ENERGY"]} >= 0, <= 1; # %_ned [-] share of non-energy demand per type of feedstocks.
 param t_op {HOURS, TYPICAL_DAYS} default 1;# [h]: operating time 
-param f_max {TECHNOLOGIES} >= 0; # Maximum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
-param f_min {TECHNOLOGIES} >= 0; # Minimum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
+param f_max {TECHNOLOGIES} >= 0 default 0; # Maximum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
+param f_min {TECHNOLOGIES} >= 0 default 0; # Minimum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
 param fmax_perc {TECHNOLOGIES} >= 0, <= 1 default 1; # value in [0,1]: this is to fix that a technology can at max produce a certain % of the total output of its sector over the entire year
 param fmin_perc {TECHNOLOGIES} >= 0, <= 1 default 0; # value in [0,1]: this is to fix that a technology can at min produce a certain % of the total output of its sector over the entire year
 param avail {RESOURCES} >= 0; # Yearly availability of resources [GWh/y]
 param c_op {RESOURCES} >= 0; # cost of resources in the different periods [Meuros/GWh]
 param vehicule_capacity {TECHNOLOGIES} >=0, default 0; #  veh_capa [capacity/vehicles] Average capacity (pass-km/h or t-km/h) per vehicle. It makes the link between F and the number of vehicles
 param peak_sh_factor >= 0;   # %_Peak_sh [-]: ratio between highest yearly demand and highest TDs demand
-param layers_in_out {RESOURCES union TECHNOLOGIES diff STORAGE_TECH , LAYERS}; # f: input/output Resources/Technologies to Layers. Reference is one unit ([GW] or [Mpkm/h] or [Mtkm/h]) of (main) output of the resource/technology. input to layer (output of technology) > 0.
+param layers_in_out {RESOURCES union TECHNOLOGIES diff STORAGE_TECH , LAYERS} default 0; # f: input/output Resources/Technologies to Layers. Reference is one unit ([GW] or [Mpkm/h] or [Mtkm/h]) of (main) output of the resource/technology. input to layer (output of technology) > 0.
 param c_inv {TECHNOLOGIES} >= 0; # Specific investment cost [Meuros/GW].[Meuros/GWh] for STORAGE_TECH
 param c_maint {TECHNOLOGIES} >= 0; # O&M cost [Meuros/GW/year]: O&M cost does not include resource (fuel) cost. [Meuros/GWh/year] for STORAGE_TECH
 param lifetime {TECHNOLOGIES} >= 0; # n: lifetime [years]
@@ -108,8 +121,8 @@ param tau {i in TECHNOLOGIES} := i_rate * (1 + i_rate)^lifetime [i] / (((1 + i_r
 param gwp_constr {TECHNOLOGIES} >= 0; # GWP emissions associated to the construction of technologies [ktCO2-eq./GW]. Refers to [GW] of main output
 param gwp_op {RESOURCES} >= 0; # GWP emissions associated to the use of resources [ktCO2-eq./GWh]. Includes extraction/production/transportation and combustion
 param c_p {TECHNOLOGIES} >= 0, <= 1 default 1; # yearly capacity factor of each technology [-], defined on annual basis. Different than 1 if sum {t in PERIODS} F_t (t) <= c_p * F
-param storage_eff_in {STORAGE_TECH , LAYERS} >= 0, <= 1; # eta_sto_in [-]: efficiency of input to storage from layers.  If 0 storage_tech/layer are incompatible
-param storage_eff_out {STORAGE_TECH , LAYERS} >= 0, <= 1; # eta_sto_out [-]: efficiency of output from storage to layers. If 0 storage_tech/layer are incompatible
+param storage_eff_in {STORAGE_TECH , LAYERS} >= 0, <= 1 default 0; # eta_sto_in [-]: efficiency of input to storage from layers.  If 0 storage_tech/layer are incompatible
+param storage_eff_out {STORAGE_TECH , LAYERS} >= 0, <= 1 default 0; # eta_sto_out [-]: efficiency of output from storage to layers. If 0 storage_tech/layer are incompatible
 param storage_losses {STORAGE_TECH} >= 0, <= 1; # %_sto_loss [-]: Self losses in storage (required for Li-ion batteries). Value = self discharge in 1 hour.
 param storage_charge_time    {STORAGE_TECH} >= 0; # t_sto_in [h]: Time to charge storage (Energy to Power ratio). If value =  5 <=>  5h for a full charge.
 param storage_discharge_time {STORAGE_TECH} >= 0; # t_sto_out [h]: Time to discharge storage (Energy to Power ratio). If value =  5 <=>  5h for a full discharge.
@@ -127,6 +140,14 @@ param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for s
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
 
+## INFRA ##
+param ref_size {TECHNOLOGIES} >= 0 default 0.001; # f_ref: reference size of each technology, expressed in the same units as the layers_in_out table. Refers to main output (heat for cogen technologies). storage level [GWh] for STORAGE_TECH
+param trl {TECHNOLOGIES} >=0 default 9; # Specific investment cost [MCHF/GW].[MCHF/GWh] for STORAGE_TECH
+param f_grid_ext {GRIDS} default 0; # existing grid size [GW]
+param l_grid_ext {GRIDS} default 0; # existing grid length [km]
+param n_stations {GRIDS} default 1; # number of transformation stations [-]
+param l_grid_ref {g in GRIDS} := l_grid_ext [g]/ n_stations [g] ; # average grid transition length per energytron [km]
+param k_security {GRIDS} default 0; # Conversion factor from model-observation-security [-]
 
 
 #####################################
@@ -146,9 +167,9 @@ var Storage_out {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_out
 var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 var Shares_mobility_passenger {TECHNOLOGIES_OF_END_USES_CATEGORY["MOBILITY_PASSENGER"]} >=0; # %_PassMob [-]: Constant share of passenger mobility
 var Shares_mobility_freight {TECHNOLOGIES_OF_END_USES_CATEGORY["MOBILITY_FREIGHT"]} >=0; # %_FreightMob [-]: Constant share of passenger mobility
-var Shares_lowT_dec {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}}>=0 ; # %_HeatDec [-]: Constant share of heat Low T decentralised + its specific thermal solar
-var F_solar         {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}} >=0; # F_sol [GW]: Solar thermal installed capacity per heat decentralised technologies
-var F_t_solar       {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}, h in HOURS, td in TYPICAL_DAYS} >= 0; # F_t_sol [GW]: Solar thermal operating per heat decentralised technologies
+var Shares_lowT_dec {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}}>=0 ; # %_HeatDec [-]: Constant share of heat Low T decentralised + its specific thermal solar
+var F_solar         {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}} >=0; # F_sol [GW]: Solar thermal installed capacity per heat decentralised technologies
+var F_t_solar       {TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}, h in HOURS, td in TYPICAL_DAYS} >= 0; # F_t_sol [GW]: Solar thermal operating per heat decentralised technologies
 
 ##Dependent variables [Table 2.4] :
 var End_uses {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #EndUses [GW]: total demand for each type of end-uses (hourly power). Defined for all layers (0 if not demand). [Mpkm] or [Mtkm] for passenger or freight mobility.
@@ -162,6 +183,10 @@ var GWP_op {RESOURCES} >= 0; #  GWP_op [ktCO2-eq.]: Total yearly emissions of th
 var Network_losses {END_USES_TYPES, HOURS, TYPICAL_DAYS} >= 0; # Net_loss [GW]: Losses in the networks (normally electricity grid and DHN)
 var Storage_level {STORAGE_TECH, PERIODS} >= 0; # Sto_level [GWh]: Energy stored at each period
 
+
+## INFRA ##
+var C_inv_grid_help{GRIDS} >= 0;
+
 #############################################
 ###      CONSTRAINTS Eqs [2.1-2.39]       ###
 #############################################
@@ -171,9 +196,15 @@ var Storage_level {STORAGE_TECH, PERIODS} >= 0; # Sto_level [GWh]: Energy stored
 
 # [Figure 2.8] From annual energy demand to hourly power demand. End_uses is non-zero only for demand layers.
 subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	End_uses [l, h, td] = (if l == "ELECTRICITY" 
+	End_uses [l, h, td] = (if l == "ELECTRICITY_LV" 
 		then
 			(end_uses_input[l] / total_time + end_uses_input["LIGHTING"] * electricity_time_series [h, td] / t_op [h, td] ) + Network_losses [l,h,td]
+		else (if l == "ELECTRICITY_MV" then
+			end_uses_input[l] / total_time  + Network_losses [l,h,td]
+		else (if l == "ELECTRICITY_HV" then
+			end_uses_input[l] / total_time  + Network_losses [l,h,td]
+		else (if l == "ELECTRICITY_EHV" then
+			end_uses_input[l] / total_time  + Network_losses [l,h,td]
 		else (if l == "HEAT_LOW_T_DHN" then
 			(end_uses_input["HEAT_LOW_T_HW"] / total_time + end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td] ) * Share_heat_dhn + Network_losses [l,h,td]
 		else (if l == "HEAT_LOW_T_DECEN" then
@@ -197,7 +228,7 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 		else (if l == "METHANOL" then
 			end_uses_input["NON_ENERGY"] * share_ned ["METHANOL"] / total_time
 		else 
-			0 )))))))))))); # For all layers which don't have an end-use demand
+			0 ))))))))))))))); # For all layers which don't have an end-use demand
 
 
 ## Cost
@@ -208,9 +239,12 @@ subject to totalcost_cal:
 	TotalCost = sum {j in TECHNOLOGIES} (tau [j]  * C_inv [j] + C_maint [j]) + sum {i in RESOURCES} C_op [i];
 	
 # [Eq. 2.3] Investment cost of each technology
-subject to investment_cost_calc {j in TECHNOLOGIES}: 
+subject to investment_cost_calc {j in TECHNOLOGIES diff GRIDS}: 
 	C_inv [j] = c_inv [j] * F [j];
-		
+
+subject to investment_cost_calc_4 {i in GRIDS}:
+	C_inv [i] = (F[i] - f_grid_ext[i]) * c_inv [i] * l_grid_ext[i] * k_security[i] / n_stations[i] + C_inv_grid_help [i];	
+
 # [Eq. 2.4] O&M cost of each technology
 subject to main_cost_calc {j in TECHNOLOGIES}: 
 	C_maint [j] = c_maint [j] * F [j];		
@@ -305,13 +339,18 @@ subject to storage_layer_in {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in T
 subject to storage_layer_out {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 	Storage_out [j, l, h, td] * (ceil (storage_eff_out [j, l]) - 1) = 0;
 		
+# WIP 
+
 # [Eq. 2.19] limit the Energy to power ratio for storage technologies except EV batteries
-subject to limit_energy_to_power_ratio {j in STORAGE_TECH diff {"BEV_BATT","PHEV_BATT"}, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_in [j, l, h, td] * storage_charge_time[j] + Storage_out [j, l, h, td] * storage_discharge_time[j] <=  F [j] * storage_availability[j];
+#subject to limit_energy_to_power_ratio {j in STORAGE_TECH diff {"BEV_BATT","PHEV_BATT"}, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
+#	Storage_in [j, l, h, td] * storage_charge_time[j] + Storage_out [j, l, h, td] * storage_discharge_time[j] <=  F [j] * storage_availability[j];
 	
 # [Eq. 2.19-bis] limit the Energy to power ratio for EV batteries
-subject to limit_energy_to_power_ratio_bis {i in V2G, j in EVs_BATT_OF_V2G[i], l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_in [j, l, h, td] * storage_charge_time[j] + (Storage_out [j, l, h, td] + layers_in_out[i,"ELECTRICITY"]* F_t [i, h, td]) * storage_discharge_time[j]  <= ( F [j] - F_t [i,h,td] / vehicule_capacity [i] * batt_per_car[i] ) * storage_availability[j];
+#subject to limit_energy_to_power_ratio_bis {i in V2G, j in EVs_BATT_OF_V2G[i], l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
+#	Storage_in [j, l, h, td] * storage_charge_time[j] + (Storage_out [j, l, h, td] + layers_in_out[i,"ELECTRICITY_MV"]* F_t [i, h, td]) * storage_discharge_time[j]  <= ( F [j] - F_t [i,h,td] / vehicule_capacity [i] * batt_per_car[i] ) * storage_availability[j];
+
+
+
 
 ## Networks
 #----------------
@@ -321,9 +360,9 @@ subject to network_losses {eut in END_USES_TYPES, h in HOURS, td in TYPICAL_DAYS
 	Network_losses [eut,h,td] = (sum {j in RESOURCES union TECHNOLOGIES diff STORAGE_TECH: layers_in_out [j, eut] > 0} ((layers_in_out[j, eut]) * F_t [j, h, td])) * loss_network [eut];
 
 # [Eq. 2.21]  Extra grid cost for integrating 1 GW of RE is estimated to 367.8Meuros per GW of intermittent renewable (27beuros to integrate the overall potential) 
-subject to extra_grid:
-	F ["GRID"] = 1 +  (c_grid_extra / c_inv["GRID"]) *(    (F ["WIND_ONSHORE"]     + F ["WIND_OFFSHORE"]     + F ["PV"]      )
-					                                     - (f_min ["WIND_ONSHORE"] + f_min ["WIND_OFFSHORE"] + f_min ["PV"]) );
+#subject to extra_grid:
+#	F ["GRID"] = 1 +  (c_grid_extra / c_inv["GRID"]) *(    (F ["WIND_ONSHORE"]     + F ["WIND_OFFSHORE"]     + F ["PV"]      )
+#					                                     - (f_min ["WIND_ONSHORE"] + f_min ["WIND_OFFSHORE"] + f_min ["PV"]) );
 
 # [Eq. 2.22] DHN: assigning a cost to the network equal to the power capacity connected to the grid
 subject to extra_dhn:
@@ -354,15 +393,15 @@ subject to Freight_shares :
 ## Thermal solar & thermal storage:
 
 # [Eq. 2.27] relation between decentralised thermal solar power and capacity via period capacity factor.
-subject to thermal_solar_capacity_factor {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}, h in HOURS, td in TYPICAL_DAYS}:
+subject to thermal_solar_capacity_factor {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}, h in HOURS, td in TYPICAL_DAYS}:
 	F_t_solar [j, h, td] <= F_solar[j] * c_p_t["DEC_SOLAR", h, td];
 	
 # [Eq. 2.28] Overall thermal solar is the sum of specific thermal solar 	
 subject to thermal_solar_total_capacity :
-	F ["DEC_SOLAR"] = sum {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}} F_solar[j];
+	F ["DEC_SOLAR"] = sum {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}} F_solar[j];
 
 # [Eq. 2.29]: Decentralised thermal technology must supply a constant share of heat demand.
-subject to decentralised_heating_balance  {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}, i in TS_OF_DEC_TECH[j], h in HOURS, td in TYPICAL_DAYS}:
+subject to decentralised_heating_balance  {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}, i in TS_OF_DEC_TECH[j], h in HOURS, td in TYPICAL_DAYS}:
 	F_t [j, h, td] + F_t_solar [j, h, td] + sum {l in LAYERS } ( Storage_out [i, l, h, td] - Storage_in [i, l, h, td])  
 		= Shares_lowT_dec[j] * (end_uses_input["HEAT_LOW_T_HW"] / total_time + end_uses_input["HEAT_LOW_T_SH"] * heating_time_series [h, td] / t_op [h, td]);
 
@@ -375,7 +414,7 @@ subject to EV_storage_size {j in V2G, i in EVs_BATT_OF_V2G[j]}:
 	
 # [Eq. 2.31]  Impose EVs to be supplied by their battery.
 subject to EV_storage_for_V2G_demand {j in V2G, i in EVs_BATT_OF_V2G[j], h in HOURS, td in TYPICAL_DAYS}:
-	Storage_out [i,"ELECTRICITY",h,td] >=  - layers_in_out[j,"ELECTRICITY"]* F_t [j, h, td];
+	Storage_out [i,"ELECTRICITY_MV",h,td] >=  - layers_in_out[j,"ELECTRICITY_MV"]* F_t [j, h, td];
 		
 # [Eq. 2.31-bis]  Impose a minimum state of charge at some hours of the day:
 subject to ev_minimum_state_of_charge {j in V2G, i in EVs_BATT_OF_V2G[j],  t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
@@ -384,7 +423,7 @@ subject to ev_minimum_state_of_charge {j in V2G, i in EVs_BATT_OF_V2G[j],  t in 
 ## Peak demand :
 
 # [Eq. 2.32] Peak in decentralized heating
-subject to peak_lowT_dec {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR","SFH_RENO","MFH_RENO"}, h in HOURS, td in TYPICAL_DAYS}:
+subject to peak_lowT_dec {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DECEN"] diff {"DEC_SOLAR"}, h in HOURS, td in TYPICAL_DAYS}:
 	F [j] >= peak_sh_factor * F_t [j, h, td] ; 
 
 # [Eq. 2.33] Calculation of max heat demand in DHN (1st constraint required to linearised the max function)
@@ -420,12 +459,26 @@ subject to extra_efficiency:
 	F ["EFFICIENCY"] = 1 / (1 + i_rate);	
 
 # [Eq. 2.38] Limit electricity import capacity
+#subject to max_elec_import {h in HOURS, td in TYPICAL_DAYS}:
+#	F_t ["ELECTRICITY", h, td] * t_op [h, td] <= import_capacity; 
 subject to max_elec_import {h in HOURS, td in TYPICAL_DAYS}:
-	F_t ["ELECTRICITY", h, td] * t_op [h, td] <= import_capacity; 
+	sum{elec_grid in ELECTRICITY_LAYERS} (F_t [elec_grid, h, td] * t_op [h, td]) <= import_capacity; 
+
 	
 # [Eq. 2.39] Limit surface area for solar
 subject to solar_area_limited :
 	F["PV"] / power_density_pv + ( F ["DEC_SOLAR"] + F ["DHN_SOLAR"] ) / power_density_solar_thermal <= solar_area;
+
+## INFRA ## 
+
+# Grid constraints
+subject to grid_power1 {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t], g in GRIDS}:
+	F [g] >= F_t [g,h,td];
+	
+subject to grid_power2  {t in PERIODS, l in (ELECTRICITY_LAYERS union H2_LAYERS union NG_LAYERS), g in GRIDS_OF_LAYERS[l], h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
+	F_t [g,h,td] >= sum {j in TECHNOLOGIES diff STORAGE_TECH: layers_in_out[j,l]>0} (F_t [j,h,td]*layers_in_out[j,l]) + F_t [l,h,td];
+
+
 
 
 ##########################
