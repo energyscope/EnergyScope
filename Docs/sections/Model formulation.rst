@@ -890,7 +890,10 @@ The storage level (:math:`\textbf{Sto}_{\textbf{level}}`) at a time step (:math:
 to the storage level at :math:`t-1` (accounting for the losses in
 :math:`t-1`), plus the inputs to the storage, minus the output from the
 storage (accounting for input/output efficiencies),
-Eq. :eq:`eq:sto_level`:. The storage systems which can
+Eq. :eq:`eq:sto_level`:. In the code, for the first period of the year, 
+this equation is slightly modified to set the storage level at 
+the beginning of the year according to the one at the end of the year. Hence, if :math:`t=1`, 
+we set :math:`t-1` to the last period of the year (8760). The storage systems which can
 only be used for short-term (daily) applications are included in the
 daily storage set (STO DAILY). For these units,
 Eq. :eq:`eq:Sto_level_bound_DAILY`: imposes
