@@ -4,8 +4,8 @@
  
 # Content and documentation #
 This folder contains the fourth release (v2_2, hourly LP) of the EnergyScope model adapted to the Belgian case.  
-This version of the model is an extension of the one in [4].  
-A documentation is available [here](https://energyscope.readthedocs.io).
+This version of the model is an extension of the one in [4].
+A documentation is available [here](https://www.energyscope.net/latest/).
 
 Do refer to the documentation for:
 - Model overview
