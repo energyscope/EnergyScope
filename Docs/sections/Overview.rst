@@ -1,3 +1,5 @@
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
+
 Overview
 ++++++++
 .. _label_sec_overview:
@@ -135,6 +137,7 @@ Therefore, a short computaitonal time is required to enable many sampling.
 ^^^^^^^^^^^^^^^^^^^
 
 EnergyScope TD is a snapshot model, in the sence that it represents the energy system in a target future year, without considering existing system.
+
 
 
 
