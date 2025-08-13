@@ -1,3 +1,5 @@
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
+
 Releases
 ++++++++
 .. _sec_releases:
@@ -176,6 +178,7 @@ The model has been applied to the following countries:
   
     * *European Union countries* see :cite:t:`dommissemodelling` for a data collection and results for 26 european countries.
   
+
 
 
 
