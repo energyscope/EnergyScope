@@ -1,3 +1,5 @@
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
+
 .. _ch_estd:
 
 Model formulation
@@ -1517,4 +1519,5 @@ documentation to support the modeler in her/his first steps.
    provides free access to a library of optimization solvers, statistics
    are available at: https://neos-server.org/neos/report.html, consulted
    the 27/01/2021.
+
 
