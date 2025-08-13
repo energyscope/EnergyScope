@@ -1,3 +1,4 @@
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 .. _app:bestd_data:
 
@@ -3182,4 +3183,5 @@ Switzerland).
 .. [370]
    More details about capacities and projects are given in Figure 56 of
    :cite:`EliaSystemOperator2017`.
+
 
