@@ -3,10 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 The EnergyScope model
 =====================
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
+
 The EnergyScope project is an open-source whole-energy system for regional energy system. The model optimises the design and hourly operation over a year for a target year.
 
 
