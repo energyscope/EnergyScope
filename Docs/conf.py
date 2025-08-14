@@ -51,7 +51,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'default' #There is a mistake with sphinx_rtd_theme, cannot be installed even by adding it in requirements and extensions = []. Issue discussed here: https://github.com/readthedocs/sphinx_rtd_theme/issues/1463
+html_theme = 'sphinx_rtd_theme'
 numfig = True # Add figure numbering
 numtab = True # Add table numbering
 
@@ -64,3 +64,4 @@ html_static_path = []
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 html_logo = 'images/estd_graphical_abstract.png'
+
