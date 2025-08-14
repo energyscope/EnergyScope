@@ -1,9 +1,9 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 .. _app:bestd_data:
 
 Input Data
 ++++++++++
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 **Belgian energy system data in 2035**
 

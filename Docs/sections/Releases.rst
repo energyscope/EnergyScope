@@ -1,8 +1,8 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 Releases
 ++++++++
 .. _sec_releases:
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 How to cite
 ===========

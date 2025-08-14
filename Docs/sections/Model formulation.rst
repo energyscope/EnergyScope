@@ -1,9 +1,9 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 .. _ch_estd:
 
 Model formulation
 =================
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 .. role:: raw-latex(raw)
    :format: latex

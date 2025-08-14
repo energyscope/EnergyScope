@@ -1,8 +1,8 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 How to contribute
 +++++++++++++++++
 .. _label_sec_howtocontribute:
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 .. caution::
 

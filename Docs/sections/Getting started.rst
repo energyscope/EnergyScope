@@ -1,7 +1,7 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 Getting started
 +++++++++++++++
+
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 The model is a mathematical formulation of a linear programming. Ith can be solved with different solvers: CPLEX, Gurobi, GLPSOL, etc. 
 The model was originally developed in AMPL. Running the model in AMPL requires the licences of AMPL and of at least one LP solver.  

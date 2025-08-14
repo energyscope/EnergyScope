@@ -1,9 +1,8 @@
-.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
-
 Overview
 ++++++++
 .. _label_sec_overview:
 
+.. warning:: New and updated version of the documentation is available in this `library <https://www.energyscope.net/latest/>`_.
 
 :Version: |version| (|release|)
 :Date: |today|
