@@ -4,8 +4,7 @@
  
 # Content and documentation #
 This folder contains the fourth release (v2_2, hourly LP) of the EnergyScope model adapted to the Belgian case.  
-This version of the model is an extension of the one in [4].  
-A documentation is available [here](https://www.energyscope.net/latest/).
+This version of the model is an extension of the one in [4], and is documented as part of the EnergyScope webpage [here](https://gitlab.com/energyscope).
 
 Do refer to the documentation for:
 - Model overview
@@ -24,8 +23,7 @@ You may cite it as follows:
 - [3], for reference to the energyscope MILP modeling framework 	
 - [4], for reference to the current code 	
 
-You are welcome to report any bugs related to the code or its documentation through a git Issue or by emailing:    
- moret.stefano@gmail.com or gauthierLimpens@gmail.com  
+You are welcome to report any bugs related to the code or its documentation through a git Issue or to add your version of EnergyScope as a branch of this repository.
 
 
 # References:  #  
