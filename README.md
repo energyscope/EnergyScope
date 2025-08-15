@@ -4,7 +4,7 @@
  
 # Content and documentation #
 This folder contains the fourth release (v2_2, hourly LP) of the EnergyScope model adapted to the Belgian case.  
-This version of the model is an extension of the one in [4], and is documented as part of the EnergyScope webpage [here](https://gitlab.com/energyscope).
+This version of the model is an extension of the one in [4], and is documented as part of the EnergyScope webpage [here](https://gitlab.com/energyscope). 
 
 Do refer to the documentation for:
 - Model overview
@@ -14,6 +14,8 @@ Do refer to the documentation for:
 - License
 - Get started and exercices
 
+There is also an EnergyScope repository on gitlab, for a python package that includes convenience functions for plotting, running analyses, and so on. 
+For more information, see the library section [on the webpage](https://gitlab.com/energyscope). 
 
 # Acknowledging authorship #
 In the academic spirit of collaboration, the source code should be appropriately acknowledged in the resulting scientific disseminations.  
