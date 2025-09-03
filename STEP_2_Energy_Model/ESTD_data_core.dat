@@ -105,7 +105,7 @@ CAR_PHEV	4.4
 CAR_BEV	24.0
 ;
   
-param:	vehicule_capacity := # km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.
+param:	vehicle_capacity := # km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.
 CAR_PHEV	50.4
 CAR_BEV	50.4
 ;
