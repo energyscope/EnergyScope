@@ -1,0 +1,1 @@
+The files in this folder are from the tutorial on creating the typical day .dat file, and are taken from the energy scope library (https://gitlab.com/energyscope).
